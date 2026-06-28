@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../services/auth/auth';
 
 import { CardComponent } from '../../components/card/card/card';
 import { CardContentComponent } from '../../components/card/card-content/card-content';

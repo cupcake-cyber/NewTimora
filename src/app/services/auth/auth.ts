@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { User } from '../models/user';
+import { User } from '../../models/user';
 
 export interface LoginResponse {
   accessToken: string;
@@ -12,7 +12,7 @@ export interface LoginResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private api = 'http://localhost:8080/auth/login';
+  private api = '/auth/login';
 
   constructor(private http: HttpClient) {}
 
