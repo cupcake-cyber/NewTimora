@@ -4,13 +4,15 @@ import { HeaderComponent } from '../../layout/header/header';
 import { SessionService } from '../../services/user-session/user-session';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-companies',
   standalone: true,
-  imports: [CommonModule,HeaderComponent],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  imports: [CommonModule, HeaderComponent],
+  templateUrl: './companies.html',
+  styleUrl: './companies.scss',
 })
-export class DashboardComponent {
+export class CompaniesComponent {
+
   private session = inject(SessionService);
+
   user$ = this.session.getMe();
 }

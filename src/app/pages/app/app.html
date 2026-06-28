@@ -2,11 +2,26 @@
 
   <app-sidebar></app-sidebar>
 
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col flex-1 relative">
 
+    <!-- HEADER GLOBAL -->
+    <app-header
+      [title]="title"
+      [userName]="'Admin'"
+      [notificationCount]="1"
+      (notificationsToggle)="toggleNotifications()"
+    ></app-header>
+
+    <!-- PAGE -->
     <main class="flex-1 overflow-auto p-4">
       <router-outlet></router-outlet>
     </main>
+
+    <!-- DRAWER -->
+    <app-notifications-drawer
+      *ngIf="isNotificationsOpen"
+      (close)="closeNotifications()"
+    ></app-notifications-drawer>
 
   </div>
 

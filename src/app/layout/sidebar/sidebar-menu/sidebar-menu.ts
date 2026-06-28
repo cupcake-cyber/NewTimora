@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../../services/auth/auth';
-import { MENU, MenuItem } from '../menu/menu';
+import { MENU, MenuItem } from '../../../config/menu';
 
 import { SidebarItemComponent } from '../sidebar-item/sidebar-item';
 

@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MenuItem } from '../menu/menu';
+import { MenuItem } from '../../../config/menu';
 
 @Component({
   selector: 'app-sidebar-item',
