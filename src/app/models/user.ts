@@ -3,5 +3,5 @@ export interface User {
     email: string;
     companyId: number;
     personId: number;
-    role: 'OWNER' | 'ADMIN' | 'USER' | 'USER_SUPPLIER';
+    role: 'OWNER' | 'ADMIN' | 'USER';
 }

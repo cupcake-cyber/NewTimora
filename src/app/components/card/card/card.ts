@@ -12,7 +12,7 @@ export class CardComponent {
 
   get classes(): string {
     return [
-      'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border',
+      'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border',
       this.className,
     ].join(' ');
   }

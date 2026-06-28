@@ -8,11 +8,14 @@
   <div class="flex items-center justify-between px-5 py-4 border-b border-border">
     <div>
       <h3 class="font-semibold text-foreground">Notifications</h3>
+      <p class="text-xs text-muted-foreground">
+        {{ (notifications$ | async)?.length || 0 }} unread
+      </p>
     </div>
 
     <button
       (click)="close()"
-      class="p-1.5 rounded-lg hover:bg-secondary"
+      class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
     >
       ✕
     </button>
@@ -25,15 +28,45 @@
 
       <div
         *ngFor="let n of notifications"
-        class="rounded-xl p-3 border border-border bg-card"
+        class="rounded-xl p-3.5 flex gap-3 border border-border bg-card transition-colors"
       >
-        <p class="text-xs text-foreground">
-          {{ n.message }}
-        </p>
 
-        <div class="text-[10px] text-muted-foreground mt-1">
-          {{ n.type }} · {{ n.createdAt }}
+        <!-- ICON -->
+        <div
+          class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/10 text-primary"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2v4"></path>
+            <path d="M16 2v4"></path>
+            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+            <path d="M3 10h18"></path>
+          </svg>
         </div>
+
+        <!-- CONTENT -->
+        <div class="flex-1 min-w-0">
+
+          <div class="flex items-start justify-between gap-2">
+            <p class="text-xs text-foreground leading-relaxed">
+              {{ n.message }}
+            </p>
+
+            <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1"></span>
+          </div>
+
+          <div class="flex items-center gap-2 mt-1">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary text-muted-foreground">
+              {{ n.type }}
+            </span>
+
+            <span class="text-[10px] text-muted-foreground">
+              {{ n.createdAt }}
+            </span>
+          </div>
+
+        </div>
+
       </div>
 
     </ng-container>

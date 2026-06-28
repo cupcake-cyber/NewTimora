@@ -8,40 +8,51 @@
   <!-- RIGHT: ACTIONS -->
   <div class="flex items-center gap-2">
 
-    <!-- NOTIFICATIONS -->
-    <button
-      (click)="toggleNotifications()"
-      class="relative p-2 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+    <!-- ROLE BADGE -->
+    <span
+      *ngIf="role === 'OWNER'"
+      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary "
     >
+      OWNER
+    </span>
 
-      <!-- icon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <span
+      *ngIf="role === 'ADMIN'"
+      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400"
+    >
+      ADMIN
+    </span>
 
-        <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
-        <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
+    <span
+      *ngIf="role === 'USER'"
+      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400"
+    >
+      USER
+    </span>
 
-      </svg>
+    <!-- NOTIFICATIONS (con separador ahora aquí) -->
+    <div class="flex items-center pl-2 border-l border-border">
 
-      <!-- dot / badge -->
-      <span
-        *ngIf="notificationCount > 0"
-        class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary"
-      ></span>
+      <button
+        (click)="toggleNotifications()"
+        class="relative p-2 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <!-- icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
-    </button>
+          <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
+          <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
 
-    <!-- USER -->
-    <div class="flex items-center gap-2 pl-2 border-l border-border">
+        </svg>
 
-      <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-        {{ initial }}
-      </div>
-
-      <span class="text-xs text-muted-foreground">
-        {{ userName }}
-      </span>
+        <!-- badge -->
+        <span
+          *ngIf="notificationCount > 0"
+          class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary"
+        ></span>
+      </button>
 
     </div>
 

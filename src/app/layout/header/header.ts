@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+type UserRole = 'OWNER' | 'ADMIN' | 'USER';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -11,7 +13,7 @@ export class HeaderComponent {
 
   @Input() title: string = '';
 
-  @Input() userName: string = 'User';
+  @Input() role: UserRole = 'USER';
 
   @Input() notificationCount: number = 0;
 
@@ -21,7 +23,7 @@ export class HeaderComponent {
     this.notificationsToggle.emit();
   }
 
-  get initial(): string {
-    return this.userName?.charAt(0)?.toUpperCase() ?? 'U';
+  getRoleLabel(): string {
+    return this.role;
   }
 }

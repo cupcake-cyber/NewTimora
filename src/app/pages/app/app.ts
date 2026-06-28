@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, Observable } from 'rxjs';
 
 import { SidebarComponent } from '../../layout/sidebar/sidebar/sidebar';
 import { HeaderComponent } from '../../layout/header/header';
 import { NotificationsDrawerComponent } from '../../layout/notifications-drawer/notifications-drawer';
-
+import { NotificationService } from '../../services/notification/notification';
 import { PAGE_TITLES } from '../../config/page-titles';
+
+import { SessionService, UserSession } from '../../services/user-session/user-session';
 
 @Component({
   selector: 'app-app',
@@ -23,26 +25,28 @@ import { PAGE_TITLES } from '../../config/page-titles';
   styleUrl: './app.scss',
 })
 export class AppComponent {
-
+  private notifications = inject(NotificationService);
   private router = inject(Router);
-
-  isNotificationsOpen = false;
+  private session = inject(SessionService);
 
   title = 'Dashboard';
 
+  user$!: Observable<UserSession>;
+
   constructor() {
+    this.user$ = this.session.getMe(); //aquí traes usuario
+
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.title = PAGE_TITLES[event.urlAfterRedirects] ?? 'App';
       });
   }
-
   toggleNotifications() {
-    this.isNotificationsOpen = !this.isNotificationsOpen;
+    this.notifications.toggle();
   }
 
   closeNotifications() {
-    this.isNotificationsOpen = false;
+    this.notifications.close();
   }
 }

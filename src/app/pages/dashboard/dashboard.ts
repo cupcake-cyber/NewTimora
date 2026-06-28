@@ -1,16 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../../layout/header/header';
-import { SessionService } from '../../services/user-session/user-session';
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule,HeaderComponent],
+  imports: [CommonModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class DashboardComponent {
-  private session = inject(SessionService);
-  user$ = this.session.getMe();
-}
+export class DashboardComponent {}

@@ -1,36 +1,74 @@
-import { Component, Input } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-input',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './input.html',
+  host: {
+    class: 'block w-full',
+  },
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputComponent),
+      multi: true,
+    },
+  ],
 })
-export class InputComponent {
-  @Input() type: string = 'text';
-  @Input() disabled = false;
+export class InputComponent implements ControlValueAccessor {
+  @Input() type: 'text' | 'email' | 'password' = 'text';
   @Input() placeholder = '';
-  @Input() className = '';
-  @Input() value: string = '';
+  @Input() disabled = false;
 
-  get classes(): string {
-    return [
-      'flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base md:text-sm',
-      'bg-input-background border-input',
-      'transition-[color,box-shadow] outline-none',
-      'placeholder:text-muted-foreground',
-      'selection:bg-primary selection:text-primary-foreground',
-      'dark:bg-input/30',
-      'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
-      'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-      'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
-      this.className,
-    ].join(' ');
+  value = '';
+  showPassword = false;
+
+  private onChange = (value: string) => {};
+  private onTouched = () => {};
+
+  // 🔥 Angular → componente
+  writeValue(value: string): void {
+    this.value = value ?? '';
   }
 
-  onInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.value = target.value;
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
+  // 🔥 componente → Angular
+  handleInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.value = value;
+    this.onChange(value);
+  }
+
+  handleBlur() {
+    this.onTouched();
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  get inputType() {
+    return this.type === 'password'
+      ? this.showPassword
+        ? 'text'
+        : 'password'
+      : this.type;
   }
 }

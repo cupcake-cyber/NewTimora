@@ -28,17 +28,24 @@
 
   --border: rgba(0, 0, 0, 0.08);
   --input: rgba(0, 0, 0, 0.04);
-
   --input-background: #eef0f7;
   --switch-background: #d1d4e8;
-
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
 
   --ring: rgba(99, 85, 232, 0.35);
 
   --radius: 0.625rem;
 
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+
+  /* Charts */
+  --chart-1: #6355e8;
+  --chart-2: #059669;
+  --chart-3: #d97706;
+  --chart-4: #2563eb;
+  --chart-5: #e03050;
+
+  /* Sidebar */
   --sidebar: #f0f1f8;
   --sidebar-foreground: #6b6d84;
   --sidebar-primary: #6355e8;
@@ -59,8 +66,9 @@
 
   --popover: #111520;
   --popover-foreground: #e2e4f0;
+  
+  --primary: 99 85 232;
 
-  --primary: #7c6ef5;
   --primary-foreground: #ffffff;
 
   --secondary: #1a1e2e;
@@ -77,10 +85,55 @@
 
   --border: rgba(255, 255, 255, 0.06);
   --input: rgba(255, 255, 255, 0.04);
-
   --input-background: #1a1e2e;
-
   --switch-background: #2d3148;
 
   --ring: rgba(124, 110, 245, 0.4);
+
+  /* Charts */
+  --chart-1: #7c6ef5;
+  --chart-2: #34d399;
+  --chart-3: #f59e0b;
+  --chart-4: #60a5fa;
+  --chart-5: #f43f5e;
+
+  /* Sidebar */
+  --sidebar: #0d0f1c;
+  --sidebar-foreground: #8a8ca0;
+  --sidebar-primary: #7c6ef5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1e2e;
+  --sidebar-accent-foreground: #e2e4f0;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-ring: rgba(124, 110, 245, 0.4);
+}
+
+/* Base styles */
+html {
+  font-size: var(--font-size);
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+h1, h2, h3, h4 {
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1rem; }
+
+label,
+button {
+  font-weight: var(--font-weight-medium);
+}
+
+input {
+  font-weight: var(--font-weight-normal);
 }

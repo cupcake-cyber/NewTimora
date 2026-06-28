@@ -1,4 +1,4 @@
-<div class="flex h-screen">
+<div class="flex h-screen ">
 
   <app-sidebar></app-sidebar>
 
@@ -7,7 +7,7 @@
     <!-- HEADER GLOBAL -->
     <app-header
       [title]="title"
-      [userName]="'Admin'"
+      [role]="(user$ | async)?.role ?? 'USER'"
       [notificationCount]="1"
       (notificationsToggle)="toggleNotifications()"
     ></app-header>
@@ -18,10 +18,7 @@
     </main>
 
     <!-- DRAWER -->
-    <app-notifications-drawer
-      *ngIf="isNotificationsOpen"
-      (close)="closeNotifications()"
-    ></app-notifications-drawer>
+    <app-notifications-drawer></app-notifications-drawer>
 
   </div>
 

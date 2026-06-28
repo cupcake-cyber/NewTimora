@@ -5,8 +5,34 @@
     <!-- HEADER -->
     <div class="text-center mb-10">
 
-      <div class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/30">
-        🧳
+      <!-- LOGO CON GLOW -->
+      <div class="relative w-14 h-14 mx-auto mb-4">
+
+        <!-- glow -->
+        <div class="absolute inset-0 rounded-2xl bg-primary/40 blur-xl"></div>
+
+        <!-- icon box -->
+        <div class="relative w-14 h-14 rounded-2xl bg-primary
+                    flex items-center justify-center
+                    shadow-lg shadow-primary/30">
+
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="26"
+               height="26"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               class="text-primary-foreground">
+
+            <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            <rect width="20" height="14" x="2" y="6" rx="2"></rect>
+
+          </svg>
+
+        </div>
       </div>
 
       <h1 class="text-3xl font-bold text-foreground tracking-tight">
@@ -20,32 +46,31 @@
     </div>
 
     <!-- CARD -->
-    <app-card class="p-6 bg-card border border-border rounded-2xl">
+    <app-card>
 
-      <app-card-content>
+      <app-card-content class="px-2 py-8">
 
-        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
 
-          <!-- EMAIL -->
-          <input
-            type="email"
+          <app-input
             formControlName="email"
-            placeholder="Email"
-            class="w-full p-3 rounded-md border border-border bg-background mt-4"
-          />
+            type="email"
+            placeholder="Email">
+          </app-input>
 
-          <!-- PASSWORD -->
-          <input
-            type="password"
+          <app-input
             formControlName="password"
-            placeholder="Password"
-            class="w-full p-3 rounded-md border border-border bg-background"
-          />
+            type="password"
+            placeholder="Password">
+          </app-input>
 
-          <!-- BUTTON -->
-          <app-button type="submit" class="w-full mt-4 text-white hover:bg-purple-700">
+          <app-button type="submit" class="w-full mt-6">
             Sign in
           </app-button>
+
+          <p *ngIf="errorMessage" class="text-sm text-destructive text-left mt-2">
+            {{ errorMessage }}
+          </p>
 
         </form>
 
