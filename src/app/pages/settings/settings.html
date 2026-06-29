@@ -1,35 +1,259 @@
-<div class="p-6 space-y-6">
-  <!-- STATS / CARDS PLACEHOLDER -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<main class="flex-1 overflow-auto p-6">
 
-    <div class="p-4 rounded-xl border border-border bg-card">
-      <div class="text-sm text-muted-foreground">Total Companies</div>
-      <div class="text-2xl font-bold text-foreground mt-2">0</div>
+  <div class="space-y-5 max-w-2xl">
+
+    <!-- HEADER -->
+    <div >
+      <h1 class="text-xl font-semibold text-foreground">Settings</h1>
+      <p class="text-sm text-muted-foreground">
+        Notification & app preferences
+      </p>
     </div>
 
-    <div class="p-4 rounded-xl border border-border bg-card">
-      <div class="text-sm text-muted-foreground">Active</div>
-      <div class="text-2xl font-bold text-foreground mt-2">0</div>
-    </div>
+    <!-- NOTIFICATIONS -->
+    <app-card class=>
+      <app-card-content class="p-6">
 
-    <div class="p-4 rounded-xl border border-border bg-card">
-      <div class="text-sm text-muted-foreground">Inactive</div>
-      <div class="text-2xl font-bold text-foreground mt-2">0</div>
-    </div>
+        <h2 class="text-sm font-semibold text-foreground mb-0.5">
+          Notifications
+        </h2>
+
+        <p class="text-xs text-muted-foreground mb-4">
+          Choose what events trigger notifications
+        </p>
+
+        <div class="divide-y divide-border">
+
+          <!-- Appointments -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">Appointments</div>
+              <div class="text-xs text-muted-foreground">
+                New appointment confirmations
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('notifyAppointments')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.notifyAppointments"
+              [class.bg-secondary]="!config.notifyAppointments"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.notifyAppointments ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+          <!-- Reservations -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">Reservations</div>
+              <div class="text-xs text-muted-foreground">
+                New reservation alerts
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('notifyReservations')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.notifyReservations"
+              [class.bg-secondary]="!config.notifyReservations"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.notifyReservations ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+          <!-- Cancellations -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">Cancellations</div>
+              <div class="text-xs text-muted-foreground">
+                Booking cancellation alerts
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('notifyCancellations')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.notifyCancellations"
+              [class.bg-secondary]="!config.notifyCancellations"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.notifyCancellations ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+          <!-- Reminders -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">Reminders</div>
+              <div class="text-xs text-muted-foreground">
+                Upcoming appointment reminders
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('notifyReminders')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.notifyReminders"
+              [class.bg-secondary]="!config.notifyReminders"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.notifyReminders ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+        </div>
+
+      </app-card-content>
+    </app-card>
+
+    <!-- CHANNELS -->
+    <app-card>
+      <app-card-content class="p-6">
+
+        <h2 class="text-sm font-semibold text-foreground mb-0.5">
+          Channels
+        </h2>
+
+        <p class="text-xs text-muted-foreground mb-4">
+          Where to receive notifications
+        </p>
+
+        <div class="divide-y divide-border">
+
+          <!-- In-App -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">
+                In-App Notifications
+              </div>
+              <div class="text-xs text-muted-foreground">
+                Receive alerts within the app
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('appChannelEnabled')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.appChannelEnabled"
+              [class.bg-secondary]="!config.appChannelEnabled"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.appChannelEnabled ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+          <!-- Email -->
+          <div class="flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium text-foreground">
+                Email Notifications
+              </div>
+              <div class="text-xs text-muted-foreground">
+                Receive alerts via email
+              </div>
+            </div>
+
+            <button
+              (click)="toggle('emailChannelEnabled')"
+              class="relative rounded-full transition-colors shrink-0"
+              [class.bg-primary]="config.emailChannelEnabled"
+              [class.bg-secondary]="!config.emailChannelEnabled"
+              style="width: 40px; height: 22px;"
+            >
+              <div
+                class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+                style="width: 18px; height: 18px;"
+                [style.transform]="config.emailChannelEnabled ? 'translateX(20px)' : 'translateX(2px)'"
+              ></div>
+            </button>
+          </div>
+
+        </div>
+
+      </app-card-content>
+    </app-card>
+
+    <!-- APPEARANCE -->
+    <app-card>
+      <app-card-content class="p-6">
+
+        <h2 class="text-sm font-semibold text-foreground mb-3">
+          Appearance
+        </h2>
+
+        <!-- Dark Mode -->
+        <div class="flex items-center justify-between py-3 border-b border-border">
+          <div>
+            <div class="text-sm font-medium text-foreground">Dark Mode</div>
+            <div class="text-xs text-muted-foreground">
+              Use dark color theme
+            </div>
+          </div>
+
+          <button
+            (click)="toggle('darkMode')"
+            class="relative rounded-full transition-colors shrink-0"
+            [class.bg-primary]="config.darkMode"
+            [class.bg-secondary]="!config.darkMode"
+            style="width: 40px; height: 22px;"
+          >
+            <div
+              class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+              style="width: 18px; height: 18px;"
+              [style.transform]="config.darkMode ? 'translateX(20px)' : 'translateX(2px)'"
+            ></div>
+          </button>
+        </div>
+
+        <!-- Reminder -->
+        <div class="mt-4 pt-2">
+          <div class="text-xs text-muted-foreground mb-2">
+            Reminder timing
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="range"
+              min="5"
+              max="120"
+              step="5"
+              [value]="config.reminderMinutesBefore"
+              (input)="updateReminder($event)"
+              class="flex-1 accent-primary"
+            />
+
+            <span class="text-sm font-semibold text-foreground w-16 text-right">
+              {{ config.reminderMinutesBefore }} min
+            </span>
+          </div>
+        </div>
+
+      </app-card-content>
+    </app-card>
 
   </div>
-  <!-- TABLE PLACEHOLDER -->
-  <div class="rounded-xl border border-border bg-card overflow-hidden">
 
-    <div class="p-4 border-b border-border">
-      <h2 class="text-sm font-semibold text-foreground">
-        Company list
-      </h2>
-    </div>
-
-    <div class="p-6 text-sm text-muted-foreground">
-      No companies yet. This will be replaced with a table later.
-    </div>
-
-  </div>
-</div>
+</main>

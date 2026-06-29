@@ -5,12 +5,32 @@ import { CommonModule } from '@angular/common';
   selector: 'app-card-content',
   standalone: true,
   imports: [CommonModule],
-  template: `<div [class]="classes"><ng-content></ng-content></div>`,
+  template: `
+    <div [ngClass]="classes">
+      <ng-content></ng-content>
+    </div>
+  `,
 })
 export class CardContentComponent {
+
   @Input() className = '';
 
+  // opcional: control de padding base
+  @Input() padding: 'none' | 'sm' | 'md' | 'lg' = 'md';
+
+  private paddingMap = {
+    none: '',
+    sm: 'p-3',
+    md: 'p-6',
+    lg: 'p-8',
+  };
+
   get classes(): string {
-    return ['px-6 [&:last-child]:pb-6', this.className].join(' ');
+    return [
+      this.paddingMap[this.padding],
+      this.className,
+    ]
+      .filter(Boolean)
+      .join(' ');
   }
 }

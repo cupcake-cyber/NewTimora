@@ -5,15 +5,25 @@ import { CommonModule } from '@angular/common';
   selector: 'app-card',
   standalone: true,
   imports: [CommonModule],
-  template: `<div [class]="classes"><ng-content></ng-content></div>`,
+  template: `
+    <div [class]="classes">
+      <ng-content></ng-content>
+    </div>
+  `,
+  host: {
+    class: 'block w-full'
+  }
 })
 export class CardComponent {
-  @Input() className = '';
+
+  @Input() cardClass = '';
 
   get classes(): string {
     return [
-      'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border',
-      this.className,
-    ].join(' ');
+      'bg-card text-card-foreground rounded-xl border border-border',
+      this.cardClass,
+    ]
+      .filter(Boolean)
+      .join(' ');
   }
 }
