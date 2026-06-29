@@ -1,12 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-companies',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  templateUrl: './companies.html',
+  styleUrl: './companies.scss',
 })
 export class DashboardComponent {}

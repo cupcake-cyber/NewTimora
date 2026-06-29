@@ -1,7 +1,6 @@
 import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-companies',
   standalone: true,
@@ -9,4 +8,4 @@ import { CommonModule } from '@angular/common';
   templateUrl: './companies.html',
   styleUrl: './companies.scss',
 })
-export class CompaniesComponent {}
+export class ProfileComponent {}
