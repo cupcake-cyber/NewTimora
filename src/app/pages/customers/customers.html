@@ -1,36 +1,63 @@
 <main class="flex-1 overflow-auto p-6">
+
   <div class="space-y-4">
+
+    <!-- HEADER -->
     <div class="flex items-center justify-between">
+
+      <!-- TITLE -->
       <div>
         <h1 class="text-xl font-semibold text-foreground">Customers</h1>
-        <p class="text-sm text-muted-foreground">6 clients</p>
+        <p class="text-sm text-muted-foreground">
+          {{ customers.length }} clients
+        </p>
       </div>
-      <div class="flex gap-2">
-        <div class="w-40"><select
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
-            <option value="all">All Companies</option>
-            <option value="1">Luxe Studio</option>
-            <option value="2">Meridian Wellness</option>
-          </select></div>
-        <div class="relative"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg><input placeholder="Search clients..."
-            class="pl-8 pr-3 py-1.5 text-sm bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 w-48 text-foreground placeholder:text-muted-foreground"
-            value=""></div><button
-          class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95  "><svg
-            xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-plus">
-            <path d="M5 12h14"></path>
-            <path d="M12 5v14"></path>
-          </svg>Add Client</button>
+
+      <!-- ACTIONS -->
+      <div class="flex items-center gap-2">
+
+        <!-- COMPANY SELECT (ONLY OWNER) -->
+        <div class="w-40" *ngIf="canSelectCompany">
+          <select
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            [(ngModel)]="selectedCompanyId" (ngModelChange)="applyFilter()">
+
+            <option [ngValue]="null">All companies</option>
+
+            <option *ngFor="let c of companies" [ngValue]="c.id">
+              {{ c.name }}
+            </option>
+
+          </select>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="relative">
+          <lucide-angular [img]="icons.Search"
+            class="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4">
+          </lucide-angular>
+
+          <input [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search clients…"
+            class="pl-8 pr-3 py-1.5 text-sm bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 w-48 text-foreground placeholder:text-muted-foreground" />
+        </div>
+
+        <!-- NEW CUSTOMER -->
+        <button (click)="openCreateModal()"
+          class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+
+          <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
+          Add Client
+        </button>
+
       </div>
     </div>
+
+    <!-- TABLE -->
     <div class="bg-card border border-border rounded-2xl overflow-hidden">
+
       <table class="w-full text-sm">
+
+        <!-- HEADER -->
         <thead class="border-b border-border">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Client</th>
@@ -40,231 +67,307 @@
             <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground"></th>
           </tr>
         </thead>
+
+        <!-- BODY -->
         <tbody class="divide-y divide-border">
-          <tr class="hover:bg-secondary/20 transition-colors">
+
+          <tr *ngFor="let c of customers" class="hover:bg-secondary/20 transition-colors">
+
+            <!-- CLIENT -->
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  V</div><span class="font-medium text-foreground">Valentina Quispe</span>
+
+                <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
+                  {{ c.person.firstName.charAt(0) }}
+                </div>
+
+                <span class="font-medium text-foreground">
+                  {{ c.person.firstName }} {{ c.person.lastName }}
+                </span>
+
               </div>
             </td>
+
+            <!-- CONTACT -->
             <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">vale.quispe@gmail.com</div>
-              <div class="text-xs text-muted-foreground">+51 912 345 678</div>
+              <div class="text-muted-foreground text-sm">{{ c.person.email }}</div>
+              <div class="text-xs text-muted-foreground">{{ c.person.phone }}</div>
             </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Av. La Marina 234, San Miguel
+
+            <!-- ADDRESS -->
+            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">
+              {{ c.person.address || '-' }}
             </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">Prefers weekend appointments,
-              allergic to certain dyes</td>
+
+            <!-- NOTES -->
+            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">
+              {{ c.customer?.notes || '-' }}
+            </td>
+
+            <!-- ACTIONS -->
             <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
-          </tr>
-          <tr class="hover:bg-secondary/20 transition-colors">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  R</div><span class="font-medium text-foreground">Rodrigo Huamán</span>
+              <div class="flex gap-1">
+
+                <button (click)="onEdit(c)"
+                  class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary">
+                  <lucide-angular [img]="icons.Pencil" class="w-4 h-4"></lucide-angular>
+                </button>
+
+                <button (click)="onDelete(c)"
+                  class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs bg-destructive/10 text-destructive hover:bg-destructive/20">
+                  <lucide-angular [img]="icons.Trash2" class="w-4 h-4"></lucide-angular>
+                </button>
+
               </div>
             </td>
-            <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">rodrigo.h@outlook.com</div>
-              <div class="text-xs text-muted-foreground">+51 901 234 567</div>
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Jr. Ancash 456, Lima</td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">Regular monthly VIP client</td>
-            <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
+
           </tr>
-          <tr class="hover:bg-secondary/20 transition-colors">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  C</div><span class="font-medium text-foreground">Camila Sánchez</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">camilas@yahoo.com</div>
-              <div class="text-xs text-muted-foreground">+51 890 123 456</div>
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Av. Universitaria 789, San Miguel
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">New client, referred by Isabella
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
-          </tr>
-          <tr class="hover:bg-secondary/20 transition-colors">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  M</div><span class="font-medium text-foreground">Mateo Flores</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">mateo.flores@gmail.com</div>
-              <div class="text-xs text-muted-foreground">+51 879 012 345</div>
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Jr. Ucayali 123, Lima</td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">Sensitive scalp – note for all
-              stylists</td>
-            <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
-          </tr>
-          <tr class="hover:bg-secondary/20 transition-colors">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  L</div><span class="font-medium text-foreground">Luciana Vargas</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">lu.vargas@gmail.com</div>
-              <div class="text-xs text-muted-foreground">+51 868 901 234</div>
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Av. Petit Thouars 890, Lince</td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">—</td>
-            <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
-          </tr>
-          <tr class="hover:bg-secondary/20 transition-colors">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
-                  S</div><span class="font-medium text-foreground">Sebastián Mendoza</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <div class="text-muted-foreground text-sm">sebas.m@gmail.com</div>
-              <div class="text-xs text-muted-foreground">+51 857 890 123</div>
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">Av. Javier Prado 567, San Isidro
-            </td>
-            <td class="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">Prefers morning slots</td>
-            <td class="px-4 py-3">
-              <div class="flex gap-1"><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-pen">
-                    <path
-                      d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
-                    </path>
-                  </svg></button><button
-                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary  "><svg
-                    xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-trash2 lucide-trash-2">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                  </svg></button></div>
-            </td>
-          </tr>
+
         </tbody>
       </table>
     </div>
+
   </div>
 </main>
+
+<!-- ========================= -->
+<!-- CREATE CUSTOMER MODAL -->
+<!-- ========================= -->
+<app-modal [open]="modalOpen" (openChange)="modalOpen = $event">
+
+  <div class="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <h3 class="font-semibold text-foreground">New Client</h3>
+
+      <button (click)="closeModal()" 
+        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="overflow-y-auto flex-1 p-6">
+      <div class="space-y-3">
+
+        <!-- COMPANY (SOLO OWNER) -->
+        <div *ngIf="currentUser?.role === 'OWNER'">
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Company <span class="text-destructive ml-0.5">*</span>
+          </label>
+
+          <select [(ngModel)]="customerForm.companyId"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+
+            <option [ngValue]="null" disabled>Select company</option>
+
+            <option *ngFor="let c of companies" [value]="c.id">
+              {{ c.name }}
+            </option>
+
+          </select>
+        </div>
+
+        <!-- PERSONAL INFO -->
+        <div class="grid grid-cols-2 gap-3">
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              First Name <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="text" [(ngModel)]="customerForm.firstName"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              Last Name <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="text" [(ngModel)]="customerForm.lastName"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">Phone</label>
+            <input type="text" [(ngModel)]="customerForm.phone"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">Email</label>
+            <input type="email" [(ngModel)]="customerForm.email"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+        </div>
+
+        <!-- ADDRESS -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Address</label>
+          <input type="text" [(ngModel)]="customerForm.address"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+        </div>
+
+        <!-- NOTES -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Notes</label>
+          <textarea [(ngModel)]="customerForm.notes" placeholder="Client preferences, allergies, notes..." rows="3"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
+          </textarea>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="flex gap-2 justify-end pt-2">
+          <button (click)="closeModal()"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+            Cancel
+          </button>
+
+          <button (click)="createCustomer()"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+            Save Client
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</app-modal>
+
+<!-- ========================= -->
+<!-- EDIT CUSTOMER MODAL -->
+<!-- ========================= -->
+<app-modal [open]="editModalOpen" (openChange)="editModalOpen = $event">
+
+  <div class="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <h3 class="font-semibold text-foreground">Edit Client</h3>
+
+      <button (click)="closeEditModal()" 
+        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="overflow-y-auto flex-1 p-6">
+      <div class="space-y-3">
+
+        <!-- PERSONAL INFO -->
+        <div class="grid grid-cols-2 gap-3">
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              First Name <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="text" [(ngModel)]="editForm.firstName"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              Last Name <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="text" [(ngModel)]="editForm.lastName"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">Phone</label>
+            <input type="text" [(ngModel)]="editForm.phone"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">Email</label>
+            <input type="email" [(ngModel)]="editForm.email"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+          </div>
+
+        </div>
+
+        <!-- ADDRESS -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Address</label>
+          <input type="text" [(ngModel)]="editForm.address"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+        </div>
+
+        <!-- NOTES -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Notes</label>
+          <textarea [(ngModel)]="editForm.notes" placeholder="Client preferences, allergies, notes..." rows="3"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
+          </textarea>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="flex gap-2 justify-end pt-2">
+          <button (click)="closeEditModal()"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+            Cancel
+          </button>
+
+          <button (click)="updateCustomer()"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+            Save Client
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</app-modal>
+
+<!-- ========================= -->
+<!-- DELETE CONFIRMATION MODAL -->
+<!-- ========================= -->
+<app-modal [open]="deleteModalOpen" (openChange)="deleteModalOpen = $event">
+
+  <div class="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl flex flex-col">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+      <h3 class="font-semibold text-foreground">Delete Client</h3>
+
+      <button (click)="closeDeleteModal()" 
+        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="p-6 text-sm text-muted-foreground">
+      Are you sure you want to delete
+      <span class="text-foreground font-medium">
+        {{ customerToDelete?.person?.firstName }} {{ customerToDelete?.person?.lastName }}
+      </span>?
+      <br />
+      <span class="text-xs text-muted-foreground/70">This action cannot be undone.</span>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
+
+      <button (click)="closeDeleteModal()"
+        class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+        Cancel
+      </button>
+
+      <button (click)="confirmDelete()" 
+        class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-red-500 text-white hover:opacity-90 active:scale-95">
+        Delete
+      </button>
+
+    </div>
+
+  </div>
+
+</app-modal>

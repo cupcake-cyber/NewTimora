@@ -125,16 +125,16 @@ export interface SupplierPatchDTO {
 
 export interface PersonIdentityCreateDTO {
   person: PersonCreateDTO;
-  user: UserCreateDTO;
-  customer: CustomerCreateDTO;
-  supplier: SupplierCreateDTO;
+  user?: UserCreateDTO | null;
+  customer?: CustomerCreateDTO | null;
+  supplier?: SupplierCreateDTO | null;
 }
 
 export interface PersonIdentityDTO {
   person: PersonDTO;
-  user: UserDTO;
-  customer: CustomerDTO;
-  supplier: SupplierDTO;
+  user?: UserDTO | null;
+  customer?: CustomerDTO | null;
+  supplier?: SupplierDTO | null;
 }
 
 export interface PersonIdentityPatchDTO {
