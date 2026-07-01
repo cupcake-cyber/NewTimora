@@ -19,7 +19,7 @@
         <!-- COMPANY SELECT (ONLY OWNER) -->
         <div class="w-36" *ngIf="canSelectCompany">
           <select
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
             [(ngModel)]="selectedCompanyId" (ngModelChange)="onCompanyChange()">
 
             <option [ngValue]="null">All companies</option>
@@ -34,7 +34,7 @@
         <!-- SUPPLIER SELECT (OWNER & ADMIN) -->
         <div class="w-44" *ngIf="canSelectSupplier">
           <select
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
             [(ngModel)]="selectedSupplierId" (ngModelChange)="onSupplierChange()">
 
             <option [ngValue]="null">All suppliers</option>
@@ -49,16 +49,16 @@
         <!-- SEARCH -->
         <div class="relative">
           <lucide-angular [img]="icons.Search"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4">
+            class="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4">
           </lucide-angular>
 
           <input [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search services…"
-            class="pl-8 pr-3 py-1.5 text-sm bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 w-48 text-foreground placeholder:text-muted-foreground" />
+            class="pl-8 pr-3 py-1.5 text-sm bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 w-48 text-foreground placeholder:text-muted-foreground" />
         </div>
 
         <!-- NEW SERVICE -->
         <button (click)="openCreateModal()"
-          class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+          class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
 
           <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
           New Service
@@ -103,12 +103,12 @@
             <!-- ACTIONS -->
             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button (click)="onEdit(service)"
-                class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary">
+                class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-input-background">
                 <lucide-angular [img]="icons.Pencil" class="w-4 h-4"></lucide-angular>
               </button>
 
               <button (click)="onDelete(service)"
-                class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary">
+                class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-input-background">
                 <lucide-angular [img]="icons.Trash2" class="w-4 h-4"></lucide-angular>
               </button>
             </div>
@@ -158,7 +158,7 @@
       <h3 class="font-semibold text-foreground">New Service</h3>
 
       <button (click)="closeModal()"
-        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        class="p-1.5 rounded-lg hover:bg-input-background text-muted-foreground hover:text-foreground transition-colors">
         <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
       </button>
     </div>
@@ -174,7 +174,7 @@
           </label>
 
           <select [(ngModel)]="serviceForm.companyId" (ngModelChange)="onModalCompanyChange()"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
 
             <option [ngValue]="null" disabled>Select company</option>
 
@@ -192,7 +192,7 @@
           </label>
 
           <select [(ngModel)]="serviceForm.supplierId"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
 
             <option [ngValue]="null" disabled>Select supplier</option>
 
@@ -214,14 +214,14 @@
             Service Name <span class="text-destructive ml-0.5">*</span>
           </label>
           <input type="text" [(ngModel)]="serviceForm.name" placeholder="e.g. Haircut & Style"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
         </div>
 
         <!-- DESCRIPTION -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">Description</label>
           <textarea [(ngModel)]="serviceForm.description" placeholder="Describe the service..." rows="2"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition resize-none">
           </textarea>
         </div>
 
@@ -232,7 +232,7 @@
               Price <span class="text-destructive ml-0.5">*</span>
             </label>
             <input type="number" [(ngModel)]="serviceForm.price" step="0.01" min="0" placeholder="0.00"
-              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
           </div>
 
           <div>
@@ -240,7 +240,7 @@
               Duration (minutes) <span class="text-destructive ml-0.5">*</span>
             </label>
             <input type="number" [(ngModel)]="serviceForm.duration" min="5" step="5" placeholder="30"
-              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
           </div>
         </div>
 
@@ -249,7 +249,7 @@
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">Status</label>
 
           <select [(ngModel)]="serviceForm.status"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
 
             <option value="ACTIVE">Active</option>
             <option value="TEMPORARILY_UNAVAILABLE">Temporarily Unavailable</option>
@@ -261,12 +261,12 @@
         <!-- FOOTER -->
         <div class="flex gap-2 justify-end pt-2">
           <button (click)="closeModal()"
-            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+            class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-input-background text-secondary-foreground hover:bg-muted">
             Cancel
           </button>
 
           <button (click)="createService()"
-            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+            class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
             Create Service
           </button>
         </div>
@@ -289,7 +289,7 @@
       <h3 class="font-semibold text-foreground">Edit Service</h3>
 
       <button (click)="closeEditModal()"
-        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        class="p-1.5 rounded-lg hover:bg-input-background text-muted-foreground hover:text-foreground transition-colors">
         <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
       </button>
     </div>
@@ -304,14 +304,14 @@
             Service Name <span class="text-destructive ml-0.5">*</span>
           </label>
           <input type="text" [(ngModel)]="editForm.name"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
         </div>
 
         <!-- DESCRIPTION -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">Description</label>
           <textarea [(ngModel)]="editForm.description" rows="2"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition resize-none">
           </textarea>
         </div>
 
@@ -322,7 +322,7 @@
               Price <span class="text-destructive ml-0.5">*</span>
             </label>
             <input type="number" [(ngModel)]="editForm.price" step="0.01" min="0"
-              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
           </div>
 
           <div>
@@ -330,7 +330,7 @@
               Duration (minutes) <span class="text-destructive ml-0.5">*</span>
             </label>
             <input type="number" [(ngModel)]="editForm.duration" min="5" step="5"
-              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
           </div>
         </div>
 
@@ -339,7 +339,7 @@
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">Status</label>
 
           <select [(ngModel)]="editForm.status"
-            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
 
             <option value="ACTIVE">Active</option>
             <option value="TEMPORARILY_UNAVAILABLE">Temporarily Unavailable</option>
@@ -351,12 +351,12 @@
         <!-- FOOTER -->
         <div class="flex gap-2 justify-end pt-2">
           <button (click)="closeEditModal()"
-            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+            class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-input-background text-secondary-foreground hover:bg-muted">
             Cancel
           </button>
 
           <button (click)="updateService()"
-            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
+            class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
             Save Changes
           </button>
         </div>
@@ -373,14 +373,14 @@
 <!-- ========================= -->
 <app-modal [open]="deleteModalOpen" (openChange)="deleteModalOpen = $event">
 
-  <div class="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl flex flex-col">
+  <div class="relative w-full bg-card border border-border rounded-2xl shadow-2xl flex flex-col">
 
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border">
       <h3 class="font-semibold text-foreground">Delete Service</h3>
 
       <button (click)="closeDeleteModal()"
-        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+        class="p-1.5 rounded-lg hover:bg-input-background text-muted-foreground hover:text-foreground transition-colors">
         <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
       </button>
     </div>
@@ -399,12 +399,12 @@
     <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
 
       <button (click)="closeDeleteModal()"
-        class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted">
+        class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-input-background text-secondary-foreground hover:bg-muted">
         Cancel
       </button>
 
       <button (click)="confirmDelete()"
-        class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-red-500 text-white hover:opacity-90 active:scale-95">
+        class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-red-500 text-white hover:opacity-90 active:scale-95">
         Delete
       </button>
 
