@@ -10,7 +10,8 @@ import {
   AvailabilityDTO, 
   AvailabilityCreateDTO, 
   AvailabilityPatchDTO,
-  toAvailabilityEvent 
+  AvailabilityEvent,
+  AvailabilityRecurring
 } from '../../models/availability';
 import { PersonIdentityDTO } from '../../models/person-identity';
 import { CurrentUser } from '../../models/currentUser';
@@ -20,10 +21,12 @@ import { AvailabilitiesFilter } from './components/availabilities-filter/availab
 import { AvailabilitiesList } from './components/availabilities-list/availabilities-list';
 import { AvailabilitiesForm } from './components/availabilities-form/availabilities-form';
 import { AvailabilitiesDeleteModal } from './components/availabilities-delete-modal/availabilities-delete-modal';
+import { AvailabilitiesCalendar } from './components/availabilities-calendar/availabilities-calendar';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 
 type ViewMode = 'list' | 'calendar';
+type CalendarViewMode = 'day' | 'week' | 'month';
 
 @Component({
   selector: 'app-availability',
@@ -37,7 +40,8 @@ type ViewMode = 'list' | 'calendar';
     AvailabilitiesFilter,
     AvailabilitiesList,
     AvailabilitiesForm,
-    AvailabilitiesDeleteModal
+    AvailabilitiesDeleteModal,
+    AvailabilitiesCalendar
   ],
   templateUrl: './availabilities.html',
   styleUrls: ['./availabilities.scss']
@@ -63,10 +67,16 @@ export class AvailabilitiesComponent implements OnInit {
   availabilities: AvailabilityDTO[] = [];
   filteredAvailabilities: AvailabilityDTO[] = [];
   
+  // ==================== CALENDARIO ====================
+  events: AvailabilityEvent[] = [];
+  currentDate: Date = new Date();
+  selectedDate: Date = new Date();
+  calendarViewMode: CalendarViewMode = 'week';
+  
   // ==================== FILTROS SELECCIONADOS ====================
   selectedCompanyId: number | null = null;
   selectedSupplierId: number | null = null;
-  viewMode: ViewMode = 'list';
+  viewMode: ViewMode = 'calendar'; // Cambiado a calendar por defecto
 
   // ==================== MODAL DE CREACIÓN/EDICIÓN ====================
   showModal = false;
@@ -83,7 +93,6 @@ export class AvailabilitiesComponent implements OnInit {
   get isAdmin(): boolean { return this.currentUser?.role === 'ADMIN'; }
   get isUser(): boolean { return this.currentUser?.role === 'USER'; }
   
-  // 🔴 Verificar si el ADMIN también es supplier
   get isAdminAndSupplier(): boolean {
     if (!this.isAdmin) return false;
     if (!this.currentUser) return false;
@@ -172,7 +181,6 @@ export class AvailabilitiesComponent implements OnInit {
     const user = this.currentUser;
     let suppliers = [...this.allSuppliers];
     
-    // 1️⃣ FILTRO POR COMPAÑÍA (según rol)
     if (this.isOwner && this.selectedCompanyId) {
       suppliers = suppliers.filter(s => s.person.companyId === this.selectedCompanyId);
       console.log('🏢 OWNER - Filtrado por compañía:', this.selectedCompanyId);
@@ -193,7 +201,6 @@ export class AvailabilitiesComponent implements OnInit {
       }
     }
 
-    // 2️⃣ VERIFICAR SUPPLIER SELECCIONADO
     if (this.selectedSupplierId && !this.isUser) {
       const stillExists = suppliers.some(s => s.supplier?.id === this.selectedSupplierId);
       if (!stillExists) {
@@ -204,11 +211,11 @@ export class AvailabilitiesComponent implements OnInit {
 
     this.filteredSuppliers = suppliers;
     
-    // 3️⃣ CARGAR DISPONIBILIDADES
     if (this.selectedSupplierId) {
       this.loadAvailabilities(this.selectedSupplierId);
     } else {
       this.filteredAvailabilities = [];
+      this.events = [];
       this.loading = false;
     }
     
@@ -217,6 +224,7 @@ export class AvailabilitiesComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ==================== CARGAR DISPONIBILIDADES ====================
   private loadAvailabilities(supplierId: number): void {
     this.loading = true;
     this.availabilityService.getAllBySupplier(supplierId).subscribe({
@@ -230,6 +238,10 @@ export class AvailabilitiesComponent implements OnInit {
         }));
         
         this.filteredAvailabilities = this.availabilities;
+        
+        // 🔴 Generar eventos para el calendario con soporte para recurrencias
+        this.events = this.generateCalendarEvents(this.availabilities, supplierName);
+        
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -240,6 +252,133 @@ export class AvailabilitiesComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // ==================== GENERAR EVENTOS DEL CALENDARIO ====================
+  private generateCalendarEvents(
+    availabilities: AvailabilityDTO[], 
+    supplierName?: string
+  ): AvailabilityEvent[] {
+    const events: AvailabilityEvent[] = [];
+    const today = new Date();
+    const startDate = new Date(this.currentDate);
+    startDate.setMonth(startDate.getMonth() - 1); // 1 mes antes
+    const endDate = new Date(this.currentDate);
+    endDate.setMonth(endDate.getMonth() + 2); // 2 meses después
+
+    for (const availability of availabilities) {
+      if (availability.status !== 'ACTIVE') continue;
+
+      const name = supplierName || availability.supplierName || `Supplier ${availability.supplierId}`;
+      const baseStart = new Date(availability.startDate);
+      const baseEnd = availability.endDate ? new Date(availability.endDate) : new Date(2099, 11, 31);
+      
+      // Si la disponibilidad está fuera del rango visible, saltar
+      if (baseEnd < startDate || baseStart > endDate) continue;
+
+      const recurrence = availability.recurrenceType;
+      
+      // Generar eventos según el tipo de recurrencia
+      if (recurrence === 'NONE') {
+        // Evento puntual
+        const event = this.createEventFromAvailability(availability, name);
+        if (event && this.isDateInRange(event.start, startDate, endDate)) {
+          events.push(event);
+        }
+      } else if (recurrence === 'DAILY') {
+        // Eventos diarios
+        const current = new Date(Math.max(baseStart.getTime(), startDate.getTime()));
+        while (current <= baseEnd && current <= endDate) {
+          const event = this.createEventFromAvailability(availability, name, current);
+          if (event) events.push(event);
+          current.setDate(current.getDate() + 1);
+        }
+      } else if (recurrence === 'WEEKLY') {
+        // Eventos semanales (con días específicos)
+        const current = new Date(Math.max(baseStart.getTime(), startDate.getTime()));
+        while (current <= baseEnd && current <= endDate) {
+          const dayOfWeek = current.getDay(); // 0=Dom, 1=Lun, ...
+          const isActive = this.isDayActive(availability, dayOfWeek);
+          if (isActive) {
+            const event = this.createEventFromAvailability(availability, name, current);
+            if (event) events.push(event);
+          }
+          current.setDate(current.getDate() + 1);
+        }
+      } else if (recurrence === 'MONTHLY') {
+        // Eventos mensuales (mismo día del mes)
+        const current = new Date(Math.max(baseStart.getTime(), startDate.getTime()));
+        const dayOfMonth = baseStart.getDate();
+        // Ajustar al día del mes
+        current.setDate(dayOfMonth);
+        while (current <= baseEnd && current <= endDate) {
+          const event = this.createEventFromAvailability(availability, name, current);
+          if (event) events.push(event);
+          current.setMonth(current.getMonth() + 1);
+        }
+      } else if (recurrence === 'YEARLY') {
+        // Eventos anuales (mismo día y mes)
+        const current = new Date(Math.max(baseStart.getTime(), startDate.getTime()));
+        const month = baseStart.getMonth();
+        const day = baseStart.getDate();
+        current.setMonth(month);
+        current.setDate(day);
+        while (current <= baseEnd && current <= endDate) {
+          const event = this.createEventFromAvailability(availability, name, current);
+          if (event) events.push(event);
+          current.setFullYear(current.getFullYear() + 1);
+        }
+      }
+    }
+
+    return events;
+  }
+
+  private createEventFromAvailability(
+    availability: AvailabilityDTO,
+    supplierName: string,
+    date?: Date
+  ): AvailabilityEvent | null {
+    const startDate = date ? new Date(date) : new Date(availability.startDate);
+    const endDate = date ? new Date(date) : new Date(availability.endDate || availability.startDate);
+    
+    const [startHour, startMinute] = availability.startTime.split(':').map(Number);
+    const [endHour, endMinute] = availability.endTime.split(':').map(Number);
+    
+    const start = new Date(startDate);
+    start.setHours(startHour, startMinute, 0, 0);
+    
+    const end = new Date(endDate);
+    end.setHours(endHour, endMinute, 0, 0);
+
+    return {
+      id: availability.id,
+      supplierId: availability.supplierId,
+      supplierName: supplierName,
+      title: `${supplierName} - Disponible`,
+      start: start,
+      end: end,
+      color: '#7C6EF5'
+    };
+  }
+
+  private isDayActive(availability: AvailabilityDTO, dayOfWeek: number): boolean {
+    // dayOfWeek: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+    const dayMap: Record<number, keyof AvailabilityDTO> = {
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday',
+      0: 'sunday'
+    };
+    const key = dayMap[dayOfWeek];
+    return !!availability[key];
+  }
+
+  private isDateInRange(date: Date, start: Date, end: Date): boolean {
+    return date >= start && date <= end;
   }
 
   // ==================== EVENTOS DEL FILTRO ====================
@@ -267,6 +406,63 @@ export class AvailabilitiesComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ==================== NAVEGACIÓN DEL CALENDARIO ====================
+  goToToday(): void {
+    this.currentDate = new Date();
+    this.selectedDate = new Date();
+    // Recargar eventos
+    if (this.selectedSupplierId) {
+      this.loadAvailabilities(this.selectedSupplierId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  previous(): void {
+    if (this.calendarViewMode === 'day') {
+      this.currentDate.setDate(this.currentDate.getDate() - 1);
+    } else if (this.calendarViewMode === 'week') {
+      this.currentDate.setDate(this.currentDate.getDate() - 7);
+    } else if (this.calendarViewMode === 'month') {
+      this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    }
+    // Recargar eventos
+    if (this.selectedSupplierId) {
+      this.loadAvailabilities(this.selectedSupplierId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  next(): void {
+    if (this.calendarViewMode === 'day') {
+      this.currentDate.setDate(this.currentDate.getDate() + 1);
+    } else if (this.calendarViewMode === 'week') {
+      this.currentDate.setDate(this.currentDate.getDate() + 7);
+    } else if (this.calendarViewMode === 'month') {
+      this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    }
+    // Recargar eventos
+    if (this.selectedSupplierId) {
+      this.loadAvailabilities(this.selectedSupplierId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  setCalendarView(mode: CalendarViewMode): void {
+    this.calendarViewMode = mode;
+    if (this.selectedSupplierId) {
+      this.loadAvailabilities(this.selectedSupplierId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  selectDay(date: Date): void {
+    this.selectedDate = date;
+    if (this.calendarViewMode === 'month' || this.calendarViewMode === 'week') {
+      this.calendarViewMode = 'day';
+    }
+    this.cdr.detectChanges();
+  }
+
   // ==================== MODAL - CREACIÓN ====================
   onAddClick(): void {
     this.modalMode = 'create';
@@ -275,53 +471,31 @@ export class AvailabilitiesComponent implements OnInit {
     let defaultSupplierId = this.selectedSupplierId || 0;
     let defaultCompanyId = this.currentUser?.companyId || 0;
     
-    console.log('🔍 Preparando creación con:', {
-      selectedSupplierId: this.selectedSupplierId,
-      defaultSupplierId,
-      defaultCompanyId,
-      currentUserCompanyId: this.currentUser?.companyId
-    });
-    
-    // Si es USER, usar su supplier
     if (this.isUser && this.currentUser?.personId) {
       const userSupplier = this.allSuppliers.find(s => s.person.id === this.currentUser?.personId);
       if (userSupplier) {
         defaultSupplierId = userSupplier.supplier?.id || 0;
         defaultCompanyId = userSupplier.person.companyId;
-        console.log('👤 USER - Supplier encontrado:', {
-          supplierId: defaultSupplierId,
-          companyId: defaultCompanyId
-        });
       }
-    } 
-    // 🔴 Si es ADMIN y supplier, usar su supplier si no hay seleccionado
-    else if (this.isAdminAndSupplier && !defaultSupplierId) {
+    } else if (this.isAdminAndSupplier && !defaultSupplierId) {
       const userSupplier = this.allSuppliers.find(s => s.person.id === this.currentUser?.personId);
       if (userSupplier) {
         defaultSupplierId = userSupplier.supplier?.id || 0;
         defaultCompanyId = userSupplier.person.companyId;
-        console.log('👤 ADMIN-SUPPLIER - Supplier encontrado:', {
-          supplierId: defaultSupplierId,
-          companyId: defaultCompanyId
-        });
       }
-    }
-    else if (defaultSupplierId > 0) {
+    } else if (defaultSupplierId > 0) {
       const selectedSupplier = this.allSuppliers.find(s => s.supplier?.id === defaultSupplierId);
       if (selectedSupplier) {
         defaultCompanyId = selectedSupplier.person.companyId;
-        console.log('🏢 Supplier seleccionado - Company ID:', defaultCompanyId);
       }
     }
     
     if (defaultCompanyId === 0 && this.selectedCompanyId) {
       defaultCompanyId = this.selectedCompanyId;
-      console.log('🏢 Usando companyId de la compañía seleccionada:', defaultCompanyId);
     }
     
     if (defaultCompanyId === 0 && this.currentUser?.companyId) {
       defaultCompanyId = this.currentUser.companyId;
-      console.log('🏢 Usando companyId del usuario:', defaultCompanyId);
     }
     
     this.createFormData = {
@@ -344,7 +518,6 @@ export class AvailabilitiesComponent implements OnInit {
       notes: ''
     };
     
-    console.log('📝 Formulario de creación:', this.createFormData);
     this.showModal = true;
   }
 
@@ -362,14 +535,13 @@ export class AvailabilitiesComponent implements OnInit {
     this.showDeleteModal = true;
   }
 
-  // ==================== MODAL - CERRAR CREACIÓN/EDICIÓN ====================
+  // ==================== MODAL - CERRAR ====================
   closeModal(): void {
     this.showModal = false;
     this.createFormData = null;
     this.editData = null;
   }
 
-  // ==================== MODAL - CERRAR ELIMINACIÓN ====================
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.availabilityToDelete = null;
@@ -384,23 +556,19 @@ export class AvailabilitiesComponent implements OnInit {
     }
   }
 
-  // ==================== MODAL - CONFIRMAR ELIMINACIÓN ====================
   confirmDelete(): void {
     if (!this.availabilityToDelete) return;
     this.deleteAvailability(this.availabilityToDelete.id);
   }
 
-  // ==================== CRUD - CREAR ====================
+  // ==================== CRUD ====================
   createAvailability(formData: AvailabilityCreateDTO): void {
-    console.log('📝 Creando disponibilidad:', formData);
-    
     if (!formData.companyId || formData.companyId === 0) {
       const supplier = this.allSuppliers.find(s => s.supplier?.id === formData.supplierId);
       if (supplier) {
         formData.companyId = supplier.person.companyId;
-        console.log('🔧 Company ID corregido desde supplier:', formData.companyId);
       } else {
-        alert('❌ Error: No se pudo determinar la compañía. Por favor selecciona un proveedor válido.');
+        alert('❌ Error: No se pudo determinar la compañía.');
         return;
       }
     }
@@ -417,23 +585,14 @@ export class AvailabilitiesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error creating availability:', err);
-        let errorMessage = 'Error al crear la disponibilidad';
-        if (err.error?.message) {
-          errorMessage = err.error.message;
-        } else if (err.error?.errors) {
-          errorMessage = Object.values(err.error.errors).join(', ');
-        }
-        alert('❌ ' + errorMessage);
+        alert('❌ ' + (err.error?.message || 'Error al crear la disponibilidad'));
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  // ==================== CRUD - ACTUALIZAR ====================
   updateAvailability(id: number, data: AvailabilityPatchDTO): void {
-    console.log('✏️ Actualizando disponibilidad:', id, data);
-    
     this.loading = true;
     this.availabilityService.patch(id, data).subscribe({
       next: () => {
@@ -446,23 +605,14 @@ export class AvailabilitiesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error updating availability:', err);
-        let errorMessage = 'Error al actualizar la disponibilidad';
-        if (err.error?.message) {
-          errorMessage = err.error.message;
-        } else if (err.error?.errors) {
-          errorMessage = Object.values(err.error.errors).join(', ');
-        }
-        alert('❌ ' + errorMessage);
+        alert('❌ ' + (err.error?.message || 'Error al actualizar la disponibilidad'));
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  // ==================== CRUD - ELIMINAR ====================
   deleteAvailability(id: number): void {
-    console.log('🗑️ Eliminando disponibilidad:', id);
-    
     this.loading = true;
     this.availabilityService.delete(id).subscribe({
       next: () => {
@@ -476,11 +626,7 @@ export class AvailabilitiesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error deleting availability:', err);
-        let errorMessage = 'Error al eliminar la disponibilidad';
-        if (err.error?.message) {
-          errorMessage = err.error.message;
-        }
-        alert('❌ ' + errorMessage);
+        alert('❌ ' + (err.error?.message || 'Error al eliminar la disponibilidad'));
         this.loading = false;
         this.cdr.detectChanges();
       }

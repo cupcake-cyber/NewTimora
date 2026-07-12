@@ -1,209 +1,124 @@
 <main class="flex-1 overflow-auto p-6">
-  <div class="flex flex-col h-full space-y-4">
-
+  <div class="space-y-4">
+    
+    <!-- FILTRO -->
     <app-bookings-filter
       [companies]="allCompanies"
-      [suppliers]="supplierOptions"
+      [suppliers]="filteredSuppliers"
       [selectedCompanyId]="selectedCompanyId"
       [selectedSupplierId]="selectedSupplierId"
       [canSelectCompany]="canSelectCompany"
       [canSelectSupplier]="canSelectSupplier"
       [viewMode]="viewMode"
       [totalBookings]="totalBookings"
+      [isReadOnly]="isReadOnly"
+      [currentUserPersonId]="currentUser?.personId ?? null"
       (companyChange)="onCompanyChange($event)"
       (supplierChange)="onSupplierChange($event)"
-      (viewModeChange)="setViewMode($event)"
-      (addClick)="openCreateModal()">
+      (viewModeChange)="onViewModeChange($event)"
+      (addClick)="onAddClick()">
     </app-bookings-filter>
 
-    <div *ngIf="loading" class="flex items-center justify-center py-12">
-      <div class="text-sm text-muted-foreground">Loading bookings...</div>
-    </div>
+    <!-- ERRORES -->
+    @if (error) {
+      <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-sm text-red-700">
+        ❌ {{ error }}
+      </div>
+    }
 
-    <div *ngIf="error" class="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-sm text-red-700">
-      {{ error }}
-    </div>
+    <!-- LOADING -->
+    @if (loading) {
+      <div class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }
 
-    <div *ngIf="!selectedSupplierId && canSelectSupplier && !loading && !isUser"
-      class="flex items-center justify-center text-muted-foreground text-sm bg-card border border-border rounded-2xl"
-      style="min-height: 300px;">
-      Selecciona un proveedor para ver la agenda
-    </div>
+    <!-- SIN SUPPLIER SELECCIONADO -->
+    @if (!loading && ready && !selectedSupplierId && !isUser) {
+      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 text-sm text-yellow-700 text-center">
+        ⚠️ Selecciona un proveedor para ver sus reservas
+      </div>
+    }
 
-    <div *ngIf="canSelectSupplier && supplierOptions.length === 0 && !loading && !isUser"
-      class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 text-sm text-yellow-700 text-center">
-      No suppliers available for the selected company
-    </div>
+    <!-- SIN SUPPLIERS DISPONIBLES -->
+    @if (!loading && ready && filteredSuppliers.length === 0 && selectedSupplierId === null && !isUser) {
+      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 text-sm text-yellow-700 text-center">
+        ⚠️ No hay proveedores disponibles para la compañía seleccionada
+      </div>
+    }
 
-    <div *ngIf="viewMode === 'list' && !loading && selectedSupplierId">
+    <!-- VISTA LISTA -->
+    @if (viewMode === 'list' && !loading && selectedSupplierId) {
       <app-bookings-list
         [bookings]="filteredBookings"
         [loading]="loading"
-        [customers]="allCustomers"
-        [services]="allServices"
-        (edit)="openEditModal($event)"
+        (edit)="openDetailModal($event)"
         (delete)="openDeleteModal($event)">
       </app-bookings-list>
-    </div>
+    }
 
-    <div *ngIf="viewMode === 'calendar' && !loading && selectedSupplierId" class="flex-1 min-h-0" style="min-height: 520px;">
+    <!-- VISTA CALENDARIO -->
+    @if (viewMode === 'calendar' && !loading && selectedSupplierId) {
       <app-bookings-calendar
         [events]="events"
         [currentDate]="currentDate"
         [selectedDate]="selectedDate"
         [calendarViewMode]="calendarViewMode"
+        [loading]="loading"
         (today)="goToToday()"
-        (previous)="previous()"
-        (next)="next()"
+        (previous)="previousDate()"
+        (next)="nextDate()"
         (viewModeChange)="setCalendarView($event)"
-        (selectedDateChange)="selectDay($event)">
+        (selectedDateChange)="selectDate($event)"
+        (eventClick)="onEventClick($event)">
       </app-bookings-calendar>
-    </div>
+    }
 
+    <!-- SIN BOOKINGS -->
+    @if (!loading && selectedSupplierId && filteredBookings.length === 0) {
+      <div class="bg-gray-500/10 border border-gray-500/20 rounded-2xl p-4 text-sm text-gray-700 text-center">
+        📭 No hay reservas para este proveedor
+      </div>
+    }
+
+    <!-- ==================== MODALES ==================== -->
+
+<!-- Modal de creación -->
+<app-bookings-form
+  [(visible)]="showCreateModal"
+  [createData]="createFormData"
+  [services]="filteredServices"
+  [customers]="filteredCustomers"
+  [loading]="loading"
+  (save)="onCreateBooking($event)"
+  (cancel)="closeCreateModal()">
+</app-bookings-form>
+
+<!-- Modal de detalle (con pagos) -->
+<app-booking-detail-modal
+  [(visible)]="showDetailModal"
+  [booking]="selectedBooking"
+  [payment]="selectedPayment"
+  [customers]="filteredCustomers"
+  [services]="filteredServices"
+  [loading]="loading"
+  [loadingPayment]="loadingPayment"
+  (updateBookingStatus)="onUpdateBookingStatus($event)"
+  (deleteBooking)="onDeleteBookingFromDetail($event)"
+  (savePayment)="onSavePayment($event)"
+  (updatePayment)="onUpdatePayment($event)"
+  (updateBookingFull)="onUpdateBookingFull($event)"
+  (deletePayment)="onDeletePayment($event)"
+  (close)="closeDetailModal()">
+</app-booking-detail-modal>
+
+<!-- Modal de eliminación (desde lista) -->
+<app-bookings-delete-modal
+  [(visible)]="showDeleteModal"
+  [booking]="bookingToDelete"
+  [loading]="loading"
+  (confirm)="confirmDeleteBooking()"
+  (cancel)="closeDeleteModal()">
+</app-bookings-delete-modal>
   </div>
 </main>
-
-<!-- CREATE MODAL -->
-<p-dialog
-  [(visible)]="modalOpen"
-  [modal]="true"
-  [closable]="false"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ maxWidth: '600px', width: '100%' }">
-  <ng-template pTemplate="header">
-    <div class="flex items-center justify-between w-full px-6 py-4 border-b border-border">
-      <h3 class="font-semibold text-foreground">Nueva cita</h3>
-      <button (click)="closeModal()" class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
-      </button>
-    </div>
-  </ng-template>
-
-  <app-bookings-form
-    [formData]="bookingForm"
-    [mode]="'create'"
-    [suppliers]="filteredSuppliers"
-    [customers]="allCustomers"
-    [services]="allServices"
-    [isUser]="isUser"
-    [companies]="allCompanies"
-    (save)="createBooking()"
-    (cancel)="closeModal()">
-  </app-bookings-form>
-</p-dialog>
-
-<!-- EDIT MODAL -->
-<p-dialog
-  [(visible)]="editModalOpen"
-  [modal]="true"
-  [closable]="false"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ maxWidth: '600px', width: '100%' }">
-  <ng-template pTemplate="header">
-    <div class="flex items-center justify-between w-full px-6 py-4 border-b border-border">
-      <h3 class="font-semibold text-foreground">Editar booking</h3>
-      <button (click)="closeEditModal()" class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
-      </button>
-    </div>
-  </ng-template>
-
-  <div class="p-6 space-y-4">
-    <div>
-      <label class="block text-xs font-medium text-muted-foreground mb-1.5">Nombre</label>
-      <input type="text" [(ngModel)]="editForm.name"
-        class="w-full h-11 px-3 rounded-xl border border-border bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition" />
-    </div>
-    <div>
-      <label class="block text-xs font-medium text-muted-foreground mb-1.5">Tipo</label>
-      <select [(ngModel)]="editForm.type"
-        class="w-full h-11 px-3 rounded-xl border border-border bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition cursor-pointer">
-        <option value="APPOINTMENT">APPOINTMENT</option>
-        <option value="RESERVATION">RESERVATION</option>
-      </select>
-    </div>
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1.5">Inicio</label>
-        <input type="datetime-local" [(ngModel)]="editForm.startTime"
-          class="w-full h-11 px-3 rounded-xl border border-border bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1.5">Fin</label>
-        <input type="datetime-local" [(ngModel)]="editForm.endTime"
-          class="w-full h-11 px-3 rounded-xl border border-border bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition" />
-      </div>
-    </div>
-    <div>
-      <label class="block text-xs font-medium text-muted-foreground mb-1.5">Estado</label>
-      <select [(ngModel)]="editForm.status"
-        class="w-full h-11 px-3 rounded-xl border border-border bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition cursor-pointer">
-        <option value="PENDING">Pendiente</option>
-        <option value="CONFIRMED">Confirmada</option>
-        <option value="COMPLETED">Completada</option>
-        <option value="CANCELLED">Cancelada</option>
-        <option value="INACTIVE">Inactiva</option>
-      </select>
-    </div>
-    <div>
-      <label class="block text-xs font-medium text-muted-foreground mb-1.5">Descripción</label>
-      <textarea [(ngModel)]="editForm.description" rows="3"
-        class="w-full px-3 py-2 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition resize-none"
-        placeholder="Descripción de la cita..."></textarea>
-    </div>
-  </div>
-
-  <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
-    <button (click)="closeEditModal()"
-      class="px-4 py-1.5 text-sm rounded-xl bg-secondary text-secondary-foreground border-none cursor-pointer hover:opacity-80 transition">
-      Cancelar
-    </button>
-    <button (click)="updateBooking()" [disabled]="loading"
-      class="px-4 py-1.5 text-sm rounded-xl bg-primary text-primary-foreground border-none cursor-pointer hover:opacity-90 transition disabled:opacity-50">
-      Guardar
-    </button>
-  </div>
-</p-dialog>
-
-<!-- DELETE MODAL -->
-<p-dialog
-  [(visible)]="deleteModalOpen"
-  [modal]="true"
-  [closable]="false"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ maxWidth: '450px', width: '100%' }">
-  <ng-template pTemplate="header">
-    <div class="flex items-center justify-between w-full px-6 py-4 border-b border-border">
-      <h3 class="font-semibold text-foreground">Eliminar booking</h3>
-      <button (click)="closeDeleteModal()" class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
-      </button>
-    </div>
-  </ng-template>
-
-  <div class="p-6 text-sm text-muted-foreground">
-    Are you sure you want to delete the booking
-    <span class="text-foreground font-medium">
-      "{{ bookingToDelete?.name || 'Booking #' + bookingToDelete?.id }}"
-    </span>?
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
-      <button
-        (click)="closeDeleteModal()"
-        class="px-4 py-1.5 text-sm rounded-xl bg-secondary text-secondary-foreground border-none cursor-pointer hover:opacity-80 transition">
-        Cancelar
-      </button>
-      <button
-        (click)="confirmDelete()"
-        [disabled]="loading"
-        class="px-4 py-1.5 text-sm rounded-xl bg-red-500 text-white border-none cursor-pointer hover:opacity-90 transition disabled:opacity-50">
-        Eliminar
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>

@@ -1,23 +1,31 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
+
+// Servicios
 import { BookingService } from '../../services/booking/booking';
 import { PersonService } from '../../services/person-identity/person-identity';
 import { AuthService } from '../../services/auth/auth';
 import { CompaniesService } from '../../services/companies/companies';
 import { ServicesService } from '../../services/service/service';
-import { BookingDTO, BookingCreateDTO, BookingPatchDTO, BookingEvent } from '../../models/appointment';
+import { PaymentService } from '../../services/payment/payment';
+
+// Modelos
+import { BookingDTO, BookingCreateDTO, BookingPatchDTO, BookingStatus, BookingEvent } from '../../models/booking';
 import { PersonIdentityDTO } from '../../models/person-identity';
 import { CurrentUser } from '../../models/currentUser';
 import { CompanyDTO } from '../../models/company';
 import { ServiceDTO } from '../../models/service';
-import { LucideAngularModule, X } from 'lucide-angular';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
+import { PaymentDTO, PaymentCreateDTO, PaymentPatchDTO } from '../../models/payments';
+
+// Componentes
 import { BookingsFilter } from './components/bookings-filter/bookings-filter';
 import { BookingsList } from './components/bookings-list/bookings-list';
-import { BookingsCalendar } from './components/bookings-calendar/bookings-calendar';
 import { BookingsForm } from './components/bookings-form/bookings-form';
+import { BookingDetailModal } from './components/booking-detail-modal/booking-detail-modal';
+import { BookingsDeleteModal } from './components/bookings-delete-modal/bookings-delete-modal';
+import { BookingsCalendar } from './components/bookings-calendar/bookings-calendar'; // ✅ Importar calendario
 
 type ViewMode = 'list' | 'calendar';
 type CalendarViewMode = 'day' | 'week' | 'month';
@@ -25,199 +33,244 @@ type CalendarViewMode = 'day' | 'week' | 'month';
 @Component({
   selector: 'app-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, DialogModule, ButtonModule, BookingsFilter, BookingsList, BookingsCalendar, BookingsForm],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    BookingsFilter,
+    BookingsList,
+    BookingsForm,
+    BookingDetailModal,
+    BookingsDeleteModal,
+    BookingsCalendar // ✅ Importar
+  ],
   templateUrl: './bookings.html',
   styleUrls: ['./bookings.scss']
 })
 export class BookingsComponent implements OnInit {
-  icons = { X };
-
-  viewMode: ViewMode = 'list';
-  calendarViewMode: CalendarViewMode = 'week';
-  bookings: BookingDTO[] = [];
-  filteredBookings: BookingDTO[] = [];
-  loading = false;
-  error: string | null = null;
-
-  currentDate = new Date();
-  selectedDate = new Date();
-  events: BookingEvent[] = [];
-
-  currentUser: CurrentUser | null = null;
-  currentUserSupplier: PersonIdentityDTO | null = null;
-  currentCompany: CompanyDTO | null = null;
-
-  allCompanies: CompanyDTO[] = [];
-  selectedCompanyId: number | null = null;
-
-  allSuppliers: PersonIdentityDTO[] = [];
-  filteredSuppliers: PersonIdentityDTO[] = [];
-  selectedSupplierId: number | null = null;
-
-  allCustomers: PersonIdentityDTO[] = [];
-  allServices: ServiceDTO[] = [];
-
-  modalOpen = false;
-  editModalOpen = false;
-  deleteModalOpen = false;
-  bookingForm: BookingCreateDTO = this.createEmptyForm();
-  editForm: BookingPatchDTO = {};
-  editBookingId: number | null = null;
-  bookingToDelete: BookingDTO | null = null;
-
+  // ==================== INYECCIONES ====================
   private bookingService = inject(BookingService);
   private personService = inject(PersonService);
   private authService = inject(AuthService);
   private companiesService = inject(CompaniesService);
   private servicesService = inject(ServicesService);
+  private paymentService = inject(PaymentService);
   private cdr = inject(ChangeDetectorRef);
 
-  get isOwner() { return this.currentUser?.role === 'OWNER'; }
-  get isAdmin() { return this.currentUser?.role === 'ADMIN'; }
-  get isUser() { return this.currentUser?.role === 'USER'; }
-  get canSelectCompany() { return this.isOwner; }
-  get canSelectSupplier() { return this.isOwner || this.isAdmin; }
+  // ==================== ESTADO ====================
+  currentUser: CurrentUser | null = null;
+  loading = false;
+  loadingPayment = false;
+  ready = false;
+  error: string | null = null;
 
-  get totalBookings(): number {
-    return this.filteredBookings.length;
-  }
+  // ==================== DATOS ====================
+  allCompanies: CompanyDTO[] = [];
+  allSuppliers: PersonIdentityDTO[] = [];
+  allCustomers: PersonIdentityDTO[] = [];
+  allServices: ServiceDTO[] = [];
+  filteredSuppliers: PersonIdentityDTO[] = [];
+  bookings: BookingDTO[] = [];
+  filteredBookings: BookingDTO[] = [];
 
-  get supplierOptions(): PersonIdentityDTO[] {
-    return this.filteredSuppliers;
-  }
+  // ==================== CALENDARIO ====================
+  events: BookingEvent[] = [];
+  currentDate: Date = new Date();
+  selectedDate: Date = new Date();
+  calendarViewMode: CalendarViewMode = 'week';
 
+  // ==================== FILTROS SELECCIONADOS ====================
+  selectedCompanyId: number | null = null;
+  selectedSupplierId: number | null = null;
+  viewMode: ViewMode = 'list';
+
+  // ==================== MODALES ====================
+  showCreateModal = false;
+  showDetailModal = false;
+  showDeleteModal = false;
+
+  // Datos para modales
+  selectedBooking: BookingDTO | null = null;
+  selectedPayment: PaymentDTO | null = null;
+  bookingToDelete: BookingDTO | null = null;
+  createFormData: BookingCreateDTO | null = null;
+
+  // ==================== GETTERS DE CONTEXTO ====================
+  get isOwner(): boolean { return this.currentUser?.role === 'OWNER'; }
+  get isAdmin(): boolean { return this.currentUser?.role === 'ADMIN'; }
+  get isUser(): boolean { return this.currentUser?.role === 'USER'; }
+  
+  // ==================== GETTERS DE UI ====================
+  get canSelectCompany(): boolean { return this.isOwner; }
+  get canSelectSupplier(): boolean { return this.isOwner || this.isAdmin; }
+  get isReadOnly(): boolean { return false; }
+  get totalBookings(): number { return this.filteredBookings.length; }
+
+  // ==================== LIFECYCLE ====================
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
-    this.loadCompanies();
+    console.log('👤 Usuario actual:', {
+      role: this.currentUser?.role,
+      companyId: this.currentUser?.companyId,
+      personId: this.currentUser?.personId
+    });
+    
+    this.initContext();
+    this.loadData();
+  }
+
+  // ==================== INICIALIZACIÓN ====================
+  private initContext(): void {
+    const user = this.currentUser;
+    if (!user) return;
+
+    if (this.isAdmin && user.companyId) {
+      this.selectedCompanyId = user.companyId;
+      console.log('🏢 ADMIN - Compañía fijada:', this.selectedCompanyId);
+    }
+    
+    if (this.isUser && user.personId) {
+      console.log('👤 USER - Persona ID:', user.personId);
+    }
+  }
+
+  // ==================== CARGA DE DATOS ====================
+  private loadData(): void {
+    if (this.isOwner) {
+      this.loadCompanies();
+    }
     this.loadSuppliers();
     this.loadCustomers();
     this.loadServices();
   }
 
-  // ==================== LOAD DATA ====================
-
   private loadCompanies(): void {
     this.companiesService.getAll().subscribe({
-      next: (companies) => {
-        this.allCompanies = companies ?? [];
-        if (this.isOwner && this.currentUser?.companyId) {
-          this.selectedCompanyId = this.currentUser.companyId;
-        }
-        this.onCompanyChange(this.selectedCompanyId);
+      next: data => {
+        this.allCompanies = data ?? [];
+        console.log('🏢 Compañías cargadas:', this.allCompanies.length);
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading companies:', err);
-      }
+      error: err => console.error('Error loading companies:', err)
     });
   }
 
   private loadSuppliers(): void {
+    this.loading = true;
+    console.log('🔄 Cargando suppliers...');
+    
     this.personService.getAll().subscribe({
-      next: (data) => {
-        let suppliers = (data ?? []).filter(x => x.supplier !== null && x.supplier !== undefined);
-        if (this.isUser && this.currentUser) {
-          suppliers = suppliers.filter(s => s.person.id === this.currentUser?.personId);
-        }
-        this.allSuppliers = suppliers;
-        this.applyFilters();
+      next: data => {
+        this.allSuppliers = (data ?? []).filter(x => x.supplier !== null);
+        console.log('👤 Suppliers totales:', this.allSuppliers.length);
+        this.loading = false;
+        this.ready = true;
+        this.applyFiltersAndLoad();
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading suppliers:', err);
+      error: err => {
+        console.error('❌ Error loading suppliers:', err);
+        this.error = 'Failed to load suppliers';
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   private loadCustomers(): void {
     this.personService.getAll().subscribe({
-      next: (data) => {
-        this.allCustomers = (data ?? []).filter(x => x.customer !== null && x.customer !== undefined);
+      next: data => {
+        this.allCustomers = (data ?? []).filter(x => x.customer !== null);
+        console.log('👤 Clientes cargados:', this.allCustomers.length);
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading customers:', err);
-      }
+      error: err => console.error('Error loading customers:', err)
     });
   }
 
   private loadServices(): void {
     this.servicesService.getAll().subscribe({
-      next: (data) => {
+      next: data => {
         this.allServices = data ?? [];
+        console.log('📦 Servicios cargados:', this.allServices.length);
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading services:', err);
-      }
+      error: err => console.error('Error loading services:', err)
     });
   }
 
-  private loadCurrentUserSupplier(): void {
-    if (!this.currentUser) return;
-    this.personService.getById(this.currentUser.personId).subscribe({
-      next: (person) => {
-        if (person.supplier) {
-          this.currentUserSupplier = person;
-          this.selectedSupplierId = person.supplier.id;
-          this.loadBookings();
-        }
-        this.cdr.detectChanges();
-      },
-      error: console.error
-    });
-  }
-
-  loadBookings(): void {
-    if (this.isUser) {
-      if (!this.currentUserSupplier) {
-        this.loadCurrentUserSupplier();
-        return;
-      }
-      if (!this.selectedSupplierId && this.currentUserSupplier) {
-        this.selectedSupplierId = this.currentUserSupplier.supplier?.id ?? null;
+  // ==================== FILTROS ====================
+  private applyFiltersAndLoad(): void {
+    const user = this.currentUser;
+    let suppliers = [...this.allSuppliers];
+    
+    console.log('🔍 Aplicando filtros...');
+    console.log('📌 Antes del filtro:', suppliers.length);
+    
+    if (this.isOwner && this.selectedCompanyId) {
+      suppliers = suppliers.filter(s => s.person.companyId === this.selectedCompanyId);
+      console.log('🏢 OWNER - Filtrado por compañía:', this.selectedCompanyId);
+      console.log('📌 Después de compañía:', suppliers.length);
+    }
+    
+    if (this.isAdmin && user?.companyId) {
+      suppliers = suppliers.filter(s => s.person.companyId === user.companyId);
+      console.log('🏢 ADMIN - Filtrado por compañía:', user.companyId);
+      console.log('📌 Después de compañía:', suppliers.length);
+    }
+    
+    if (this.isUser && user?.personId) {
+      suppliers = suppliers.filter(s => s.person.id === user.personId);
+      console.log('👤 USER - Filtrado por persona:', user.personId);
+      console.log('📌 Después de persona:', suppliers.length);
+      
+      if (suppliers.length > 0 && suppliers[0].supplier?.id) {
+        this.selectedSupplierId = suppliers[0].supplier.id;
+        console.log('✅ USER - Supplier auto-seleccionado:', this.selectedSupplierId);
       }
     }
 
-    if (!this.selectedSupplierId && !this.isUser) {
-      this.filteredBookings = [];
-      this.events = [];
-      return;
+    if (this.selectedSupplierId && !this.isUser) {
+      const stillExists = suppliers.some(s => s.supplier?.id === this.selectedSupplierId);
+      if (!stillExists) {
+        console.log('⚠️ Supplier seleccionado ya no existe, limpiando...');
+        this.selectedSupplierId = null;
+      }
     }
 
-    this.loading = true;
-    this.error = null;
-
-    let supplierId: number | null = null;
-
-    if (this.isUser && this.currentUserSupplier) {
-      supplierId = this.currentUserSupplier.supplier?.id ?? null;
+    this.filteredSuppliers = suppliers;
+    console.log('📊 Suppliers filtrados:', this.filteredSuppliers.length);
+    console.log('✅ Supplier seleccionado final:', this.selectedSupplierId);
+    
+    if (this.selectedSupplierId) {
+      this.loadBookings(this.selectedSupplierId);
     } else {
-      supplierId = this.selectedSupplierId;
-    }
-
-    if (!supplierId) {
+      this.filteredBookings = [];
+      this.bookings = [];
+      this.events = [];
       this.loading = false;
-      return;
+      console.log('ℹ️ No hay supplier seleccionado');
     }
+    
+    this.cdr.detectChanges();
+  }
 
-    const id = Number(supplierId);
-    if (isNaN(id)) {
-      this.loading = false;
-      this.error = 'Invalid supplier ID';
-      return;
-    }
-
-    this.bookingService.getAllBySupplier(id).subscribe({
-      next: (data) => {
+  // ==================== CARGAR BOOKINGS ====================
+  private loadBookings(supplierId: number): void {
+    this.loading = true;
+    console.log('🔄 Cargando bookings para supplier:', supplierId);
+    
+    this.bookingService.getBySupplier(supplierId).subscribe({
+      next: data => {
         this.bookings = data;
         this.filteredBookings = data;
-        this.events = this.convertToEvents(data);
+        this.events = this.convertToEvents(data); // ✅ Convertir a eventos
+        console.log('📋 Bookings cargados:', this.bookings.length);
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading bookings:', err);
+      error: err => {
+        console.error('❌ Error loading bookings:', err);
         this.error = 'Failed to load bookings';
         this.loading = false;
         this.cdr.detectChanges();
@@ -225,95 +278,69 @@ export class BookingsComponent implements OnInit {
     });
   }
 
-  // ==================== FILTERS ====================
-
-  private applyFilters(): void {
-    let suppliers = this.allSuppliers;
-
-    if (this.canSelectCompany && this.selectedCompanyId) {
-      suppliers = suppliers.filter(s => s.person.companyId === this.selectedCompanyId);
-    }
-
-    if (this.isAdmin) {
-      const companyId = this.currentUser?.companyId;
-      if (companyId) {
-        suppliers = suppliers.filter(s => s.person.companyId === companyId);
-      }
-    }
-
-    this.filteredSuppliers = suppliers;
-
-    if (this.selectedSupplierId) {
-      const stillExists = this.filteredSuppliers.some(s => s.supplier?.id === this.selectedSupplierId);
-      if (!stillExists) {
-        this.selectedSupplierId = null;
-        this.filteredBookings = [];
-        this.events = [];
-      }
-    }
-
-    if (this.isUser) {
-      this.loadCurrentUserSupplier();
-    }
-
-    this.cdr.detectChanges();
+  // ==================== CONVERTIR BOOKINGS A EVENTOS ====================
+  private convertToEvents(bookings: BookingDTO[]): BookingEvent[] {
+    return bookings.map(b => ({
+      id: b.id,
+      title: b.name || `Reserva #${b.id}`,
+      start: new Date(b.startTime),
+      end: new Date(b.endTime),
+      booking: b,
+      customerName: this.getCustomerName(b.customerId),
+      serviceName: this.getServiceName(b.serviceId)
+    }));
   }
 
-  onCompanyChange(companyId: number | null): void {
-    this.selectedCompanyId = companyId;
-    this.applyFilters();
-    this.selectedSupplierId = null;
-    this.filteredBookings = [];
-    this.events = [];
-    this.cdr.detectChanges();
-  }
-
-  onSupplierChange(supplierId: number | null): void {
-    this.selectedSupplierId = supplierId;
-    this.loadBookings();
-  }
-
-  // ==================== EVENTS CONVERSION ====================
-
-  convertToEvents(data: BookingDTO[]): BookingEvent[] {
-    return data.map(item => {
-      const start = new Date(item.startTime);
-      const end = new Date(item.endTime);
-
-      return {
-        id: item.id,
-        title: item.name || `Booking #${item.id}`,
-        description: item.description || '',
-        customerName: this.getCustomerName(item.customerId),
-        serviceName: this.getServiceName(item.serviceId),
-        start: start,
-        end: end,
-        status: item.status,
-        type: item.type
-      };
-    });
-  }
-
-  getCustomerName(customerId: number): string {
+  private getCustomerName(customerId: number): string {
     const customer = this.allCustomers.find(c => c.customer?.id === customerId);
-    if (customer) return `${customer.person.firstName} ${customer.person.lastName}`;
-    return `Cliente #${customerId}`;
+    return customer ? `${customer.person.firstName} ${customer.person.lastName}` : `Cliente #${customerId}`;
   }
 
-  getServiceName(serviceId: number): string {
+  private getServiceName(serviceId: number): string {
     const service = this.allServices.find(s => s.id === serviceId);
     return service?.name || `Servicio #${serviceId}`;
   }
 
-  // ==================== NAVIGATION ====================
+  // ==================== EVENTOS DEL FILTRO ====================
+  onCompanyChange(companyId: number | null): void {
+    if (!this.isOwner) {
+      console.warn('⚠️ Solo OWNER puede cambiar compañía');
+      return;
+    }
+    console.log('🏢 Cambiando compañía a:', companyId);
+    this.selectedCompanyId = companyId;
+    this.selectedSupplierId = null;
+    this.applyFiltersAndLoad();
+  }
 
+  onSupplierChange(supplierId: number | null): void {
+    if (this.isUser) {
+      console.warn('⚠️ USER no puede cambiar supplier (está fijo)');
+      return;
+    }
+    console.log('👤 Cambiando supplier a:', supplierId);
+    this.selectedSupplierId = supplierId;
+    this.applyFiltersAndLoad();
+  }
+
+  onViewModeChange(mode: ViewMode): void {
+    console.log('📱 Cambiando vista a:', mode);
+    this.viewMode = mode;
+    // Al cambiar a calendario, asegurar que los eventos estén actualizados
+    if (mode === 'calendar' && this.selectedSupplierId) {
+      // Ya están cargados en this.events
+    }
+    this.cdr.detectChanges();
+  }
+
+  // ==================== NAVEGACIÓN DEL CALENDARIO ====================
   goToToday(): void {
     this.currentDate = new Date();
     this.selectedDate = new Date();
-    this.updateView();
+    this.cdr.detectChanges();
   }
 
-  previous(): void {
+  previousDate(): void {
     if (this.calendarViewMode === 'day') {
       this.currentDate.setDate(this.currentDate.getDate() - 1);
     } else if (this.calendarViewMode === 'week') {
@@ -321,10 +348,10 @@ export class BookingsComponent implements OnInit {
     } else if (this.calendarViewMode === 'month') {
       this.currentDate.setMonth(this.currentDate.getMonth() - 1);
     }
-    this.updateView();
+    this.cdr.detectChanges();
   }
 
-  next(): void {
+  nextDate(): void {
     if (this.calendarViewMode === 'day') {
       this.currentDate.setDate(this.currentDate.getDate() + 1);
     } else if (this.calendarViewMode === 'week') {
@@ -332,29 +359,15 @@ export class BookingsComponent implements OnInit {
     } else if (this.calendarViewMode === 'month') {
       this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     }
-    this.updateView();
-  }
-
-  updateView(): void {
     this.cdr.detectChanges();
-  }
-
-  // ==================== VIEW MODE ====================
-
-  setViewMode(mode: ViewMode): void {
-    this.viewMode = mode;
-    if (mode === 'calendar') {
-      this.calendarViewMode = 'week';
-    }
-    this.updateView();
   }
 
   setCalendarView(mode: CalendarViewMode): void {
     this.calendarViewMode = mode;
-    this.updateView();
+    this.cdr.detectChanges();
   }
 
-  selectDay(date: Date): void {
+  selectDate(date: Date): void {
     this.selectedDate = date;
     if (this.calendarViewMode === 'month' || this.calendarViewMode === 'week') {
       this.calendarViewMode = 'day';
@@ -362,157 +375,34 @@ export class BookingsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==================== CRUD OPERATIONS ====================
-
-  openCreateModal(): void {
-    this.bookingForm = this.createEmptyForm();
-
-    if (this.isUser && this.currentUserSupplier) {
-      this.bookingForm.companyId = this.currentUserSupplier.person.companyId;
-    } else if (this.selectedCompanyId) {
-      this.bookingForm.companyId = this.selectedCompanyId;
-    }
-
-    this.modalOpen = true;
-    this.cdr.detectChanges();
+  onEventClick(event: BookingEvent): void {
+    this.openDetailModal(event.booking);
   }
 
-  closeModal(): void {
-    this.modalOpen = false;
-  }
-
-  createBooking(): void {
-    const form = this.bookingForm;
-
-    if (!form.companyId || form.companyId === 0) {
-      alert('Company ID is required');
-      return;
-    }
-    if (form.customerId === 0) {
-      alert('Please select a customer');
-      return;
-    }
-    if (form.serviceId === 0) {
-      alert('Please select a service');
-      return;
-    }
-    if (!form.startTime || !form.endTime) {
-      alert('Please select start and end date/time');
-      return;
-    }
-
-    const startDate = new Date(form.startTime);
-    const endDate = new Date(form.endTime);
-    if (endDate <= startDate) {
-      alert('End time must be after start time');
-      return;
-    }
-
-    this.loading = true;
-    this.bookingService.create(form).subscribe({
-      next: () => {
-        this.modalOpen = false;
-        this.loadBookings();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error creating booking:', err);
-        alert('Failed to create booking: ' + (err.error?.message || err.message));
-        this.loading = false;
-        this.cdr.detectChanges();
+  // ==================== MODAL - CREACIÓN ====================
+  onAddClick(): void {
+    console.log('➕ Abriendo modal de creación');
+    
+    let defaultCompanyId = this.currentUser?.companyId || 0;
+    let defaultSupplierId = this.selectedSupplierId || 0;
+    
+    if (this.isUser && this.currentUser?.personId) {
+      const userSupplier = this.allSuppliers.find(s => s.person.id === this.currentUser!.personId);
+      if (userSupplier) {
+        defaultSupplierId = userSupplier.supplier?.id || 0;
+        defaultCompanyId = userSupplier.person.companyId;
       }
-    });
-  }
-
-  openEditModal(booking: BookingDTO): void {
-    this.editBookingId = booking.id;
-    this.editForm = {
-      name: booking.name,
-      description: booking.description,
-      startTime: booking.startTime,
-      endTime: booking.endTime,
-      status: booking.status,
-      type: booking.type
-    };
-    this.editModalOpen = true;
-    this.cdr.detectChanges();
-  }
-
-  closeEditModal(): void {
-    this.editModalOpen = false;
-    this.editBookingId = null;
-  }
-
-  updateBooking(): void {
-    if (!this.editBookingId) return;
-
-    const id = Number(this.editBookingId);
-    if (isNaN(id)) {
-      alert('Invalid booking ID');
-      return;
     }
-
-    this.loading = true;
-    this.bookingService.patch(id, this.editForm).subscribe({
-      next: () => {
-        this.editModalOpen = false;
-        this.editBookingId = null;
-        this.loadBookings();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error updating booking:', err);
-        alert('Failed to update booking: ' + (err.error?.message || err.message));
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  openDeleteModal(booking: BookingDTO): void {
-    this.bookingToDelete = booking;
-    this.deleteModalOpen = true;
-  }
-
-  closeDeleteModal(): void {
-    this.deleteModalOpen = false;
-    this.bookingToDelete = null;
-  }
-
-  confirmDelete(): void {
-    if (!this.bookingToDelete) return;
-
-    const id = Number(this.bookingToDelete.id);
-    if (isNaN(id)) {
-      alert('Invalid booking ID');
-      return;
+    
+    if (defaultCompanyId === 0 && this.selectedCompanyId) {
+      defaultCompanyId = this.selectedCompanyId;
     }
-
-    this.loading = true;
-    this.bookingService.delete(id).subscribe({
-      next: () => {
-        this.deleteModalOpen = false;
-        this.bookingToDelete = null;
-        this.loadBookings();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error deleting booking:', err);
-        alert('Failed to delete booking: ' + (err.error?.message || err.message));
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  // ==================== HELPERS ====================
-
-  createEmptyForm(): BookingCreateDTO {
+    
     const now = new Date();
     const end = new Date(now.getTime() + 60 * 60 * 1000);
-
-    return {
-      companyId: this.currentUser?.companyId || 0,
+    
+    this.createFormData = {
+      companyId: defaultCompanyId,
       serviceId: 0,
       customerId: 0,
       startTime: this.formatDateTimeLocal(now),
@@ -521,8 +411,234 @@ export class BookingsComponent implements OnInit {
       name: '',
       description: ''
     };
+    
+    this.showCreateModal = true;
   }
 
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+    this.createFormData = null;
+  }
+
+  onCreateBooking(data: BookingCreateDTO): void {
+    if (!data.companyId || data.companyId === 0) {
+      const supplier = this.allSuppliers.find(s => s.supplier?.id === this.selectedSupplierId);
+      if (supplier) {
+        data.companyId = supplier.person.companyId;
+      } else {
+        alert('❌ Error: No se pudo determinar la compañía.');
+        return;
+      }
+    }
+    
+    this.loading = true;
+    this.bookingService.create(data).subscribe({
+      next: () => {
+        this.showCreateModal = false;
+        this.loading = false;
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error creating booking:', err);
+        alert('❌ ' + (err.error?.message || 'Error al crear la reserva'));
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ==================== MODAL - DETALLE / EDICIÓN ====================
+  openDetailModal(booking: BookingDTO): void {
+    this.selectedBooking = booking;
+    this.selectedPayment = null;
+    this.showDetailModal = true;
+    this.loadingPayment = true;
+    
+    this.paymentService.getByBookingId(booking.id).subscribe({
+      next: (payment) => {
+        this.selectedPayment = payment;
+        this.loadingPayment = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        console.log('ℹ️ No payment found for booking:', booking.id);
+        this.selectedPayment = null;
+        this.loadingPayment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedBooking = null;
+    this.selectedPayment = null;
+  }
+
+  onUpdateBookingStatus(event: { id: number; status: BookingStatus }): void {
+    this.loading = true;
+    this.bookingService.patch(event.id, { status: event.status }).subscribe({
+      next: () => {
+        this.loading = false;
+        this.closeDetailModal();
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error updating booking status:', err);
+        alert('❌ ' + (err.error?.message || 'Error al actualizar el estado'));
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onDeleteBookingFromDetail(id: number): void {
+    this.loading = true;
+    this.bookingService.delete(id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.closeDetailModal();
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error deleting booking:', err);
+        alert('❌ ' + (err.error?.message || 'Error al eliminar la reserva'));
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ==================== MODAL - ELIMINACIÓN (desde lista) ====================
+  openDeleteModal(booking: BookingDTO): void {
+    this.bookingToDelete = booking;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.bookingToDelete = null;
+  }
+
+  confirmDeleteBooking(): void {
+    if (!this.bookingToDelete) return;
+    
+    this.loading = true;
+    this.bookingService.delete(this.bookingToDelete.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.showDeleteModal = false;
+        this.bookingToDelete = null;
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error deleting booking:', err);
+        alert('❌ ' + (err.error?.message || 'Error al eliminar la reserva'));
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ==================== PAGOS (desde detalle) ====================
+  onSavePayment(data: PaymentCreateDTO): void {
+    this.loadingPayment = true;
+    this.paymentService.create(data).subscribe({
+      next: (payment) => {
+        this.selectedPayment = payment;
+        this.loadingPayment = false;
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error creating payment:', err);
+        alert('❌ ' + (err.error?.message || 'Error al crear el pago'));
+        this.loadingPayment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onUpdatePayment(event: { id: number; data: PaymentPatchDTO }): void {
+    this.loadingPayment = true;
+    this.paymentService.patch(event.id, event.data).subscribe({
+      next: (payment) => {
+        this.selectedPayment = payment;
+        this.loadingPayment = false;
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error updating payment:', err);
+        alert('❌ ' + (err.error?.message || 'Error al actualizar el pago'));
+        this.loadingPayment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onDeletePayment(id: number): void {
+    this.loadingPayment = true;
+    this.paymentService.delete(id).subscribe({
+      next: () => {
+        this.selectedPayment = null;
+        this.loadingPayment = false;
+        if (this.selectedSupplierId) {
+          this.loadBookings(this.selectedSupplierId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error deleting payment:', err);
+        alert('❌ ' + (err.error?.message || 'Error al eliminar el pago'));
+        this.loadingPayment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+// En BookingsComponent añadir método:
+onUpdateBookingFull(event: { id: number; data: BookingPatchDTO }): void {
+  this.loading = true;
+  this.bookingService.patch(event.id, event.data).subscribe({
+    next: () => {
+      this.loading = false;
+      // Cerrar modal de detalle? No, mejor recargar y dejar abierto.
+      if (this.selectedSupplierId) {
+        this.loadBookings(this.selectedSupplierId);
+      }
+      // Actualizar el booking seleccionado en el modal?
+      // Podríamos recargar el booking y actualizar el objeto
+      this.bookingService.getById(event.id).subscribe(updated => {
+        this.selectedBooking = updated;
+        this.cdr.detectChanges();
+      });
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Error updating booking:', err);
+      alert('❌ ' + (err.error?.message || 'Error al actualizar la reserva'));
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+  // ==================== HELPERS ====================
   private formatDateTimeLocal(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -531,20 +647,18 @@ export class BookingsComponent implements OnInit {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
+  // ==================== GETTERS FILTRADOS ====================
 
-  trackBySupplierId(index: number, item: PersonIdentityDTO): number {
-    return item.supplier?.id ?? index;
-  }
+get filteredCustomers(): PersonIdentityDTO[] {
+  if (!this.selectedSupplierId) return [];
+  const supplier = this.allSuppliers.find(s => s.supplier?.id === this.selectedSupplierId);
+  if (!supplier) return [];
+  const companyId = supplier.person.companyId;
+  return this.allCustomers.filter(c => c.person.companyId === companyId);
+}
 
-  trackByBookingId(index: number, item: BookingDTO): number {
-    return item.id;
-  }
-
-  trackByEventId(index: number, item: BookingEvent): number {
-    return item.id;
-  }
-
-  trackByCompanyId(index: number, item: CompanyDTO): number {
-    return item.id;
-  }
+get filteredServices(): ServiceDTO[] {
+  if (!this.selectedSupplierId) return [];
+  return this.allServices.filter(s => s.supplierId === this.selectedSupplierId);
+}
 }

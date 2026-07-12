@@ -1,0 +1,284 @@
+<p-dialog
+  [(visible)]="visible"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ maxWidth: '600px', width: '100%' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [showHeader]="false"
+  styleClass="custom-dialog">
+  
+  <div class="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <h3 class="font-semibold text-foreground text-lg">{{ modalTitle }}</h3>
+      <button 
+        (click)="onClose()"
+        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="overflow-y-auto flex-1 p-6">
+      <div class="space-y-4">
+
+        <!-- Estado y tipo + Botones de edición -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" [class]="statusColor">
+              {{ statusLabel }}
+            </span>
+            <span class="text-xs text-muted-foreground">{{ booking?.type || '—' }}</span>
+          </div>
+          <!-- Botón editar booking -->
+          <button
+            *ngIf="canEditBooking && !isEditingBooking"
+            (click)="toggleEditBooking()"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+            <lucide-angular [img]="icons.Pencil" class="w-3 h-3"></lucide-angular>
+            Editar
+          </button>
+          <div *ngIf="isEditingBooking" class="flex gap-1">
+            <button
+              (click)="toggleEditBooking()"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+              Cancelar
+            </button>
+            <button
+              (click)="onSaveBookingEdit()"
+              [disabled]="loading"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-primary text-primary-foreground hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+              <lucide-angular [img]="icons.Save" class="w-3 h-3"></lucide-angular>
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        <!-- Cliente -->
+        <div>
+          <div class="text-xs text-muted-foreground mb-1">Cliente</div>
+          <div *ngIf="!isEditingBooking" class="text-sm font-medium text-foreground">{{ customerName }}</div>
+          <div *ngIf="isEditingBooking">
+            <select
+              [(ngModel)]="editBookingData.customerId"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+              <option *ngFor="let customer of customers" [value]="customer.customer?.id">
+                {{ getPersonName(customer) }}
+              </option>
+            </select>
+          </div>
+          <div *ngIf="!isEditingBooking" class="text-xs text-muted-foreground">{{ customerEmail }} · {{ customerPhone }}</div>
+        </div>
+
+        <!-- Servicio -->
+        <div>
+          <div class="text-xs text-muted-foreground mb-1">Servicio</div>
+          <div *ngIf="!isEditingBooking" class="text-sm font-medium text-foreground">{{ serviceName }}</div>
+          <div *ngIf="isEditingBooking">
+            <select
+              [(ngModel)]="editBookingData.serviceId"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+              <option *ngFor="let service of services" [value]="service.id">
+                {{ getServiceNameForSelect(service) }}
+              </option>
+            </select>
+          </div>
+          <div *ngIf="!isEditingBooking" class="text-xs text-muted-foreground">{{ servicePrice }} · {{ serviceDuration }}</div>
+        </div>
+
+        <!-- Fechas -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <div class="text-xs text-muted-foreground mb-1">Inicio</div>
+            <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ formatDate(booking?.startTime || '') }} {{ formatTime(booking?.startTime || '') }}</div>
+            <div *ngIf="isEditingBooking">
+              <input
+                type="datetime-local"
+                [(ngModel)]="editBookingData.startTime"
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-muted-foreground mb-1">Fin</div>
+            <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ formatDate(booking?.endTime || '') }} {{ formatTime(booking?.endTime || '') }}</div>
+            <div *ngIf="isEditingBooking">
+              <input
+                type="datetime-local"
+                [(ngModel)]="editBookingData.endTime"
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tipo (solo en edición) -->
+        <div *ngIf="isEditingBooking">
+          <div class="text-xs text-muted-foreground mb-1">Tipo</div>
+          <select
+            [(ngModel)]="editBookingData.type"
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+            <option *ngFor="let option of typeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Nombre -->
+        <div>
+          <div class="text-xs text-muted-foreground mb-1">Nombre</div>
+          <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ booking?.name || '—' }}</div>
+          <div *ngIf="isEditingBooking">
+            <input
+              type="text"
+              [(ngModel)]="editBookingData.name"
+              placeholder="Nombre de la cita"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <div class="text-xs text-muted-foreground mb-1">Descripción</div>
+          <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ booking?.description || '—' }}</div>
+          <div *ngIf="isEditingBooking">
+            <textarea
+              [(ngModel)]="editBookingData.description"
+              rows="2"
+              placeholder="Notas opcionales…"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- PAGO -->
+        <div *ngIf="!showPaymentForm">
+          <!-- Sin pago -->
+          <div *ngIf="!hasPayment">
+            <button
+              *ngIf="canAddPayment"
+              (click)="openPaymentForm()"
+              class="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all cursor-pointer">
+              <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
+              Agregar pago
+            </button>
+            <div *ngIf="!canAddPayment" class="text-sm text-muted-foreground text-center py-2">
+              {{ isBookingCompleted ? 'Cita completada, no se pueden agregar pagos' : 'No se pueden agregar pagos' }}
+            </div>
+          </div>
+
+          <!-- Con pago -->
+          <div *ngIf="hasPayment" class="bg-secondary rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pago</span>
+              <div class="flex gap-1">
+                <button
+                  *ngIf="canEditPayment"
+                  (click)="openEditPaymentForm()"
+                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+                  <lucide-angular [img]="icons.Pen" class="w-3 h-3"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="canEditPayment"
+                  (click)="onDeletePayment()"
+                  class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-destructive/10 text-destructive hover:bg-destructive/20">
+                  <lucide-angular [img]="icons.Trash2" class="w-3 h-3"></lucide-angular>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-lg font-bold text-foreground">{{ formatAmount(payment?.amount || 0) }}</div>
+                <div class="text-xs text-muted-foreground">{{ getPaymentMethodLabel(payment?.method || 'CASH') }}</div>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" [class]="getPaymentStatusColor(payment?.status || 'PENDING')">
+                {{ getPaymentStatusLabel(payment?.status || 'PENDING') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULARIO DE PAGO -->
+        <div *ngIf="showPaymentForm" class="bg-secondary rounded-xl p-4 space-y-3">
+          <div class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            {{ isEditingPayment ? 'Editar pago' : 'Nuevo pago' }}
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Monto (S/.)</label>
+              <input
+                type="number"
+                [(ngModel)]="paymentForm.amount"
+                step="0.01"
+                min="0"
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Método</label>
+              <select
+                [(ngModel)]="paymentForm.method"
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+                <option *ngFor="let option of paymentMethods" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div *ngIf="isEditingPayment">
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">Estado</label>
+            <select
+              [(ngModel)]="paymentForm.status"
+              class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+              <option *ngFor="let option of paymentStatuses" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button
+              (click)="closePaymentForm()"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+              Cancelar
+            </button>
+            <button
+              (click)="onSavePayment()"
+              [disabled]="loadingPayment"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-primary text-primary-foreground hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="loadingPayment" class="inline-block animate-spin mr-1">⏳</span>
+              <lucide-angular [img]="icons.CircleCheckBig" class="w-3 h-3"></lucide-angular>
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        <!-- Acciones del booking -->
+        <div class="flex gap-2 pt-2 flex-wrap border-t border-border">
+          <button
+            *ngIf="canCompleteBooking"
+            (click)="onCompleteBooking()"
+            [disabled]="loading"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-secondary text-secondary-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed">
+            Completar
+          </button>
+          <button
+            *ngIf="canCancelBooking"
+            (click)="onCancelBooking()"
+            [disabled]="loading"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-destructive/10 text-destructive hover:bg-destructive/20 disabled:opacity-50 disabled:cursor-not-allowed">
+            Cancelar
+          </button>
+          <button
+            *ngIf="canDeleteBooking"
+            (click)="onDeleteBooking()"
+            [disabled]="loading"
+            class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 bg-destructive/10 text-destructive hover:bg-destructive/20 disabled:opacity-50 disabled:cursor-not-allowed">
+            <lucide-angular [img]="icons.Trash2" class="w-3 h-3"></lucide-angular>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</p-dialog>

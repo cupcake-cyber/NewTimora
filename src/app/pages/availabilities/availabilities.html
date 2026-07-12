@@ -1,23 +1,23 @@
 <main class="flex-1 overflow-auto p-6">
   <div class="space-y-4">
     
-    <!-- FILTRO (siempre visible) -->
-  <app-availabilities-filter
-    [companies]="allCompanies"
-    [suppliers]="filteredSuppliers"
-    [selectedCompanyId]="selectedCompanyId"
-    [selectedSupplierId]="selectedSupplierId"
-    [canSelectCompany]="canSelectCompany"
-    [canSelectSupplier]="canSelectSupplier"
-    [viewMode]="viewMode"
-    [totalSchedules]="totalSchedules"
-    [isReadOnly]="isReadOnly"
-    [currentUserPersonId]="currentUser?.personId ?? null"
-    (companyChange)="onCompanyChange($event)"
-    (supplierChange)="onSupplierChange($event)"
-    (viewModeChange)="onViewModeChange($event)"
-    (addClick)="onAddClick()">
-  </app-availabilities-filter>
+    <!-- FILTRO -->
+    <app-availabilities-filter
+      [companies]="allCompanies"
+      [suppliers]="filteredSuppliers"
+      [selectedCompanyId]="selectedCompanyId"
+      [selectedSupplierId]="selectedSupplierId"
+      [canSelectCompany]="canSelectCompany"
+      [canSelectSupplier]="canSelectSupplier"
+      [viewMode]="viewMode"
+      [totalSchedules]="totalSchedules"
+      [isReadOnly]="isReadOnly"
+      [currentUserPersonId]="currentUser?.personId ?? null"
+      (companyChange)="onCompanyChange($event)"
+      (supplierChange)="onSupplierChange($event)"
+      (viewModeChange)="onViewModeChange($event)"
+      (addClick)="onAddClick()">
+    </app-availabilities-filter>
 
     <!-- ERRORES -->
     @if (error) {
@@ -57,15 +57,24 @@
       </app-availabilities-list>
     }
 
-    <!-- VISTA DE CALENDARIO (placeholder) -->
+    <!-- VISTA DE CALENDARIO -->
     @if (viewMode === 'calendar' && !loading && selectedSupplierId) {
-      <div class="bg-card border border-border rounded-2xl p-8 text-center text-muted-foreground">
-        <p class="text-sm">📅 Calendar view coming soon...</p>
-        <p class="text-xs mt-1">Showing availability for supplier ID: {{ selectedSupplierId }}</p>
-      </div>
+      <app-availabilities-calendar
+        [events]="events"
+        [currentDate]="currentDate"
+        [selectedDate]="selectedDate"
+        [calendarViewMode]="calendarViewMode"
+        [loading]="loading"
+        [isReadOnly]="isReadOnly"
+        (today)="goToToday()"
+        (previous)="previous()"
+        (next)="next()"
+        (viewModeChange)="setCalendarView($event)"
+        (selectedDateChange)="selectDay($event)">
+      </app-availabilities-calendar>
     }
 
-    <!-- MODAL DE CREACIÓN/EDICIÓN -->
+    <!-- MODALES -->
     <app-availabilities-form
       [(visible)]="showModal"
       [mode]="modalMode"
@@ -78,7 +87,6 @@
       (cancel)="closeModal()">
     </app-availabilities-form>
 
-    <!-- MODAL DE ELIMINACIÓN -->
     <app-availabilities-delete-modal
       [(visible)]="showDeleteModal"
       [availability]="availabilityToDelete"

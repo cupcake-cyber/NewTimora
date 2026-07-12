@@ -2,69 +2,93 @@
   <table class="w-full text-sm">
     <thead class="border-b border-border">
       <tr>
-        <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Cita</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Reserva</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Cliente</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Servicio</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Fecha y hora</th>
-        <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Tipo</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Estado</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Tipo</th>
         <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground"></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-border">
-      <tr *ngFor="let b of bookings; trackBy: trackById"
-        class="hover:bg-secondary/20 transition-colors">
-        <td class="px-4 py-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-              {{ getInitials(b.name) }}
-            </div>
-            <div>
-              <div class="text-sm font-medium text-foreground">{{ b.name || 'Sin nombre' }}</div>
-              <div class="text-xs text-muted-foreground">{{ b.type }}</div>
-            </div>
-          </div>
-        </td>
-        <td class="px-4 py-3 text-sm text-muted-foreground">{{ getCustomerName(b.customerId) }}</td>
-        <td class="px-4 py-3 text-sm text-muted-foreground">{{ getServiceName(b.serviceId) }}</td>
-        <td class="px-4 py-3">
-          <div class="text-sm text-foreground">{{ formatDateTime(b.startTime).date }}</div>
-          <div class="text-xs text-muted-foreground">{{ formatDateTime(b.startTime).time }}</div>
-        </td>
-        <td class="px-4 py-3">
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-700/15 text-muted-foreground">
-            {{ b.type }}
-          </span>
-        </td>
-        <td class="px-4 py-3">
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-            [class.bg-emerald-500/10]="b.status === 'CONFIRMED'"
-            [class.text-emerald-400]="b.status === 'CONFIRMED'"
-            [class.bg-blue-500/10]="b.status === 'COMPLETED'"
-            [class.text-blue-400]="b.status === 'COMPLETED'"
-            [class.bg-amber-500/10]="b.status === 'PENDING'"
-            [class.text-amber-400]="b.status === 'PENDING'"
-            [class.bg-red-500/10]="b.status === 'CANCELLED' || b.status === 'INACTIVE' || b.status === 'DELETED'"
-            [class.text-red-400]="b.status === 'CANCELLED' || b.status === 'INACTIVE' || b.status === 'DELETED'">
-            {{ getStatusLabel(b.status) }}
-          </span>
-        </td>
-        <td class="px-4 py-3">
-          <div class="flex gap-1">
-            <button (click)="edit.emit(b)"
-              class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer">
-              <lucide-angular [img]="icons.Pencil" class="w-3.5 h-3.5"></lucide-angular>
-            </button>
-            <button (click)="delete.emit(b)"
-              class="inline-flex items-center rounded-xl px-2.5 py-1 text-xs bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all cursor-pointer">
-              <lucide-angular [img]="icons.Trash2" class="w-3.5 h-3.5"></lucide-angular>
-            </button>
+      <!-- Loading state -->
+      <tr *ngIf="loading">
+        <td colspan="7" class="px-4 py-8 text-center text-sm text-muted-foreground">
+          <div class="flex items-center justify-center gap-2">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            Cargando reservas...
           </div>
         </td>
       </tr>
-      <tr *ngIf="bookings.length === 0">
+
+      <!-- Empty state -->
+      <tr *ngIf="!loading && bookings.length === 0">
         <td colspan="7" class="px-4 py-8 text-center text-sm text-muted-foreground">
-          No hay bookings registrados
+          No hay reservas disponibles
+        </td>
+      </tr>
+
+      <!-- Data rows -->
+      <tr *ngFor="let b of bookings; trackBy: trackById"
+        class="hover:bg-secondary/20 transition-colors">
+        
+        <!-- Nombre de la reserva -->
+        <td class="px-4 py-3">
+          <div class="font-medium text-foreground">{{ getBookingName(b) }}</div>
+          <div class="text-xs text-muted-foreground">{{ getTypeLabel(b.type) }}</div>
+        </td>
+
+        <!-- Cliente -->
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+              {{ getInitials(getCustomerName(b)) }}
+            </div>
+            <span class="text-sm text-muted-foreground">{{ getCustomerName(b) }}</span>
+          </div>
+        </td>
+
+        <!-- Servicio -->
+        <td class="px-4 py-3 text-muted-foreground text-sm">
+          {{ getServiceName(b) }}
+        </td>
+
+        <!-- Fecha y hora -->
+        <td class="px-4 py-3">
+          <div class="text-foreground text-sm">{{ formatDate(b.startTime) }}</div>
+          <div class="text-xs text-muted-foreground">
+            {{ formatTime(b.startTime) }} – {{ formatTime(b.endTime) }}
+          </div>
+        </td>
+
+        <!-- Estado -->
+        <td class="px-4 py-3">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+            [class]="getStatusColor(b.status)">
+            {{ getStatusLabel(b.status) }}
+          </span>
+        </td>
+
+        <!-- Tipo -->
+        <td class="px-4 py-3">
+          <span class="text-xs text-muted-foreground">
+            {{ getTypeLabel(b.type) }}
+          </span>
+        </td>
+
+        <!-- Acciones -->
+        <td class="px-4 py-3">
+          <div class="flex gap-1">
+            <button (click)="edit.emit(b)"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+              <lucide-angular [img]="icons.Pencil" class="w-3.5 h-3.5"></lucide-angular>
+            </button>
+            <button (click)="delete.emit(b)"
+              class="inline-flex items-center rounded-xl font-medium transition-all cursor-pointer px-2.5 py-1 text-xs gap-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
+              <lucide-angular [img]="icons.Trash2" class="w-3.5 h-3.5"></lucide-angular>
+            </button>
+          </div>
         </td>
       </tr>
     </tbody>

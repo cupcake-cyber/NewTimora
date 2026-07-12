@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { AvailabilityEvent } from '../../../../models/availability';
@@ -12,59 +12,94 @@ type CalendarViewMode = 'day' | 'week' | 'month';
   templateUrl: './availabilities-calendar.html',
   styleUrls: ['./availabilities-calendar.scss'],
 })
-export class AvailabilitiesCalendar {
+export class AvailabilitiesCalendar implements OnChanges {
   @Input() events: AvailabilityEvent[] = [];
   @Input() currentDate: Date = new Date();
   @Input() selectedDate: Date = new Date();
   @Input() calendarViewMode: CalendarViewMode = 'week';
+  @Input() loading = false;
+  @Input() isReadOnly = false;
 
-  @Output() selectedDateChange = new EventEmitter<Date>();
-  @Output() viewModeChange = new EventEmitter<CalendarViewMode>();
   @Output() today = new EventEmitter<void>();
   @Output() previous = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
+  @Output() viewModeChange = new EventEmitter<CalendarViewMode>();
+  @Output() selectedDateChange = new EventEmitter<Date>();
 
   icons = { ChevronLeft, ChevronRight };
 
-  weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  hours: number[] = Array.from({ length: 17 }, (_, i) => i + 6);
+  hours: number[] = [];
+  weekDays: string[] = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  monthDays: string[] = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-  setView(mode: CalendarViewMode): void {
-    this.viewModeChange.emit(mode);
+  hourHeight = 48;
+  startHour = 6;  // Empezamos desde las 6 AM
+  endHour = 22;   // Hasta las 10 PM
+
+  constructor() {
+    this.generateHours();
   }
 
-  onToday(): void { this.today.emit(); }
-  onPrevious(): void { this.previous.emit(); }
-  onNext(): void { this.next.emit(); }
+  ngOnChanges(changes: SimpleChanges): void {
+    // No hacer nada especial
+  }
 
-  selectDay(date: Date): void {
-    this.selectedDate = date;
-    this.selectedDateChange.emit(date);
+  private generateHours(): void {
+    this.hours = [];
+    for (let i = this.startHour; i <= this.endHour; i++) {
+      this.hours.push(i);
+    }
+  }
+
+  getDayLabel(date: Date): string {
+    return date.toLocaleDateString('es-ES', { weekday: 'short' });
   }
 
   getDateDisplay(): string {
-    var d = this.currentDate;
-    if (this.calendarViewMode === 'week') {
-      var start = new Date(d);
-      start.setDate(d.getDate() - d.getDay() + 1);
-      var end = new Date(start);
-      end.setDate(start.getDate() + 6);
-      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const date = this.currentDate;
+    if (this.calendarViewMode === 'day') {
+      return date.toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } else if (this.calendarViewMode === 'week') {
+      const start = this.getWeekStart();
+      const end = this.getWeekEnd();
+      if (start.getMonth() === end.getMonth()) {
+        return `${start.toLocaleDateString('es-ES', { month: 'long' })} ${start.getFullYear()}`;
+      } else {
+        return `${start.toLocaleDateString('es-ES', { month: 'short' })} – ${end.toLocaleDateString('es-ES', { month: 'short' })} ${end.getFullYear()}`;
+      }
+    } else {
+      return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
     }
-    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  getWeekStart(): Date {
+    const date = new Date(this.currentDate);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    return date;
+  }
+
+  getWeekEnd(): Date {
+    const date = this.getWeekStart();
+    date.setDate(date.getDate() + 6);
+    return date;
   }
 
   getWeekDays(): Date[] {
-    var start = new Date(this.currentDate);
-    start.setDate(start.getDate() - (start.getDay() + 6) % 7);
-    start.setDate(start.getDate() + 1);
-    var arr = [];
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(start);
+    const start = this.getWeekStart();
+    const days: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
       d.setDate(start.getDate() + i);
-      arr.push(d);
+      days.push(d);
     }
-    return arr;
+    return days;
   }
 
   getMonthDays(): (Date | null)[][] {
@@ -73,14 +108,13 @@ export class AvailabilitiesCalendar {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startDayOfWeek = firstDay.getDay();
-    // Convert Sunday=0 to Monday=0 index
-    const startOffset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+    let startDayOfWeek = firstDay.getDay();
+    startDayOfWeek = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
 
     const weeks: (Date | null)[][] = [];
     let currentWeek: (Date | null)[] = [];
 
-    for (let i = 0; i < startOffset; i++) {
+    for (let i = 0; i < startDayOfWeek; i++) {
       currentWeek.push(null);
     }
 
@@ -92,7 +126,7 @@ export class AvailabilitiesCalendar {
       }
     }
 
-    while (currentWeek.length > 0 && currentWeek.length < 7) {
+    while (currentWeek.length < 7) {
       currentWeek.push(null);
     }
     if (currentWeek.length > 0) {
@@ -103,62 +137,87 @@ export class AvailabilitiesCalendar {
   }
 
   getDayEvents(date: Date): AvailabilityEvent[] {
-    if (!date) return [];
-    var dateStr = date.toDateString();
-    return this.events.filter(function(e) {
-      return new Date(e.start).toDateString() === dateStr;
+    const dateStr = date.toDateString();
+    return this.events.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.toDateString() === dateStr;
     });
   }
 
   getEventTop(event: AvailabilityEvent): number {
-    var h = new Date(event.start).getHours() + new Date(event.start).getMinutes() / 60;
-    return (h - 6) * 60;
+    const start = new Date(event.start);
+    const startHour = start.getHours() + start.getMinutes() / 60;
+    const top = (startHour - this.startHour) * this.hourHeight;
+    return Math.max(top, 0); // No permitir valores negativos
   }
 
   getEventHeight(event: AvailabilityEvent): number {
-    var sh = new Date(event.start).getHours() + new Date(event.start).getMinutes() / 60;
-    var eh = new Date(event.end).getHours() + new Date(event.end).getMinutes() / 60;
-    return Math.max((eh - sh) * 60, 30);
+    const start = new Date(event.start);
+    const end = new Date(event.end);
+    const startHour = start.getHours() + start.getMinutes() / 60;
+    const endHour = end.getHours() + end.getMinutes() / 60;
+    const height = (endHour - startHour) * this.hourHeight;
+    return Math.max(height, 20);
   }
 
   getCurrentTimePosition(): number {
     const now = new Date();
     const hours = now.getHours() + now.getMinutes() / 60;
-    return (hours - 6) * 60;
-  }
-
-  isToday(date: Date): boolean {
-    return date && date.toDateString() === new Date().toDateString();
-  }
-
-  isSelected(date: Date): boolean {
-    return date && date.toDateString() === this.selectedDate.toDateString();
-  }
-
-  getHourLabel(hour: number): string {
-    if (hour === 0) return '12a';
-    if (hour < 12) return hour + 'a';
-    if (hour === 12) return '12p';
-    return (hour - 12) + 'p';
-  }
-
-  getDayLabel(date: Date): string {
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
+    const position = (hours - this.startHour) * this.hourHeight;
+    return Math.max(position, 0);
   }
 
   formatEventTime(date: Date): string {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h = hours % 12 || 12;
+    return `${h}:${minutes} ${ampm}`;
   }
 
-  trackByEventId(_: number, item: AvailabilityEvent): number {
-    return item.id;
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
   }
 
-  trackByIndex(i: number): number {
-    return i;
+  isSelected(date: Date): boolean {
+    return date.toDateString() === this.selectedDate.toDateString();
   }
 
-  trackByMonthIndex(i: number): number {
-    return i;
+  isSameMonth(date: Date | null): boolean {
+    if (!date) return false;
+    return date.getMonth() === this.currentDate.getMonth();
+  }
+
+  selectDay(date: Date): void {
+    this.selectedDateChange.emit(date);
+  }
+
+  setView(mode: CalendarViewMode): void {
+    this.viewModeChange.emit(mode);
+  }
+
+  onToday(): void {
+    this.today.emit();
+  }
+
+  onPrevious(): void {
+    this.previous.emit();
+  }
+
+  onNext(): void {
+    this.next.emit();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  trackByEventId(index: number, event: AvailabilityEvent): number {
+    return event.id;
+  }
+
+  trackByMonthIndex(index: number, date: Date | null): string {
+    return date ? date.toDateString() : `empty-${index}`;
   }
 }
