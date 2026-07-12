@@ -1,0 +1,123 @@
+<p-dialog
+  [(visible)]="visible"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ maxWidth: '600px', width: '100%' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [showHeader]="false"
+  styleClass="custom-dialog">
+
+  <div class="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <h3 class="font-semibold text-foreground text-lg">{{ modalTitle }}</h3>
+      <button
+        (click)="onCancel()"
+        class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+        <lucide-angular [img]="icons.X" class="w-4 h-4"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="overflow-y-auto flex-1 p-6">
+      <div class="space-y-4">
+
+        <!-- COMPANY (SOLO OWNER + CREATE) -->
+        <div *ngIf="isOwner && mode === 'create'">
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Company <span class="text-destructive ml-0.5">*</span>
+          </label>
+          <select [(ngModel)]="form.companyId" (ngModelChange)="onCompanyChange()"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
+            <option [ngValue]="null" disabled>Select company</option>
+            <option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+
+        <!-- SUPPLIER (OWNER & ADMIN + CREATE) -->
+        <div *ngIf="mode === 'create' && !isUser">
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Supplier <span class="text-destructive ml-0.5">*</span>
+          </label>
+          <select [(ngModel)]="form.supplierId"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
+            <option [ngValue]="null" disabled>Select supplier</option>
+            <option *ngFor="let s of modalSuppliers; trackBy: trackBySupplier" [value]="s.supplier?.id">
+              {{ getSupplierName(s) }} - {{ s.supplier?.specialty || 'Supplier' }}
+            </option>
+          </select>
+          <div *ngIf="modalSuppliers.length === 0" class="text-xs text-muted-foreground mt-1">
+            No suppliers available for this company
+          </div>
+        </div>
+
+        <!-- SERVICE NAME -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Service Name <span class="text-destructive ml-0.5">*</span>
+          </label>
+          <input type="text" [(ngModel)]="form.name" placeholder="e.g. Haircut & Style"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Description</label>
+          <textarea [(ngModel)]="form.description" placeholder="Describe the service..." rows="2"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition resize-none">
+          </textarea>
+        </div>
+
+        <!-- PRICE & DURATION -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              Price <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="number" [(ngModel)]="form.price" step="0.01" min="0" placeholder="0.00"
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+              Duration (minutes) <span class="text-destructive ml-0.5">*</span>
+            </label>
+            <input type="number" [(ngModel)]="form.duration" min="5" step="5" placeholder="30"
+              class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition" />
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Status</label>
+          <select [(ngModel)]="form.status"
+            class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition">
+            <option value="ACTIVE">Active</option>
+            <option value="TEMPORARILY_UNAVAILABLE">Temporarily Unavailable</option>
+            <option value="ARCHIVED">Archived</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex gap-2 justify-end px-6 py-4 border-t border-border shrink-0">
+      <button
+        (click)="onCancel()"
+        class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-input-background text-secondary-foreground hover:bg-muted">
+        Cancel
+      </button>
+      <button
+        (click)="onSubmit()"
+        [disabled]="loading"
+        class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ submitLabel }}
+      </button>
+    </div>
+
+  </div>
+</p-dialog>

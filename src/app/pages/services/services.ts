@@ -5,49 +5,23 @@ import { ServicesService } from '../../services/service/service';
 import { CompaniesService } from '../../services/companies/companies';
 import { PersonService } from '../../services/person-identity/person-identity';
 import { AuthService } from '../../services/auth/auth';
-import { ServiceDTO, ServiceCreateDTO, ServicePatchDTO, ServiceStatus } from '../../models/service';
+import { ServiceDTO, ServiceCreateDTO, ServicePatchDTO } from '../../models/service';
 import { CompanyDTO } from '../../models/company';
 import { PersonIdentityDTO } from '../../models/person-identity';
 import { CurrentUser } from '../../models/currentUser';
-import { LucideAngularModule, Search, Plus, Pencil, Trash2, X, Clock } from 'lucide-angular';
-import { ModalComponent } from '../../components/modal/modal/modal';
-
-interface ServiceForm {
-  companyId: number | null;
-  supplierId: number | null;
-  name: string;
-  description: string;
-  price: number | null;
-  duration: number | null;
-  status: ServiceStatus;
-}
-
-interface EditServiceForm {
-  name: string;
-  description: string;
-  price: number | null;
-  duration: number | null;
-  status: ServiceStatus;
-}
+import { ServicesFilter } from './components/services-filter/services-filter';
+import { ServicesList } from './components/services-list/services-list';
+import { ServicesForm } from './components/services-form/services-form';
+import { ServicesDeleteModal } from './components/services-delete-modal/services-delete-modal';
 
 @Component({
   selector: 'app-services',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ServicesFilter, ServicesList, ServicesForm, ServicesDeleteModal],
   templateUrl: './services.html',
   styleUrl: './services.scss'
 })
 export class ServicesComponent implements OnInit {
-  
-  isEditMode = false;
-  editModalOpen = false;
-  editServiceId: number | null = null;
-
-  deleteModalOpen = false;
-  serviceToDelete: ServiceDTO | null = null;
-
-  serviceForm: ServiceForm = this.createEmptyForm();
-  editForm: EditServiceForm = this.createEmptyEditForm();
 
   currentUser: CurrentUser | null = null;
   currentUserSupplier: PersonIdentityDTO | null = null;
@@ -56,60 +30,51 @@ export class ServicesComponent implements OnInit {
   companies: CompanyDTO[] = [];
   allSuppliers: PersonIdentityDTO[] = [];
   filteredSuppliers: PersonIdentityDTO[] = [];
-  modalSuppliers: PersonIdentityDTO[] = [];
-  
-  searchTerm = '';
+
   selectedCompanyId: number | null = null;
   selectedSupplierId: number | null = null;
-
   loading = false;
   ready = false;
-  modalOpen = false;
 
-  private _cachedSupplierOptions: { id: number, name: string }[] = [];
-  private _cachedUniqueSuppliers: { id: number, name: string, specialty?: string }[] = [];
+  showModal = false;
+  modalMode: 'create' | 'edit' = 'create';
+  editData: ServiceDTO | null = null;
 
-  icons = { Search, Plus, Pencil, Trash2, X, Clock };
-  
+  showDeleteModal = false;
+  serviceToDelete: ServiceDTO | null = null;
+
   private servicesService = inject(ServicesService);
   private companiesService = inject(CompaniesService);
   private personService = inject(PersonService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
-  get isOwner() { return this.currentUser?.role === 'OWNER' }
-  get isAdmin() { return this.currentUser?.role === 'ADMIN' }
-  get isUser() { return this.currentUser?.role === 'USER' }
-  get canSelectCompany() { return this.isOwner }
-  get canSelectSupplier() { return this.isOwner || this.isAdmin }
-
-  get supplierOptions(): { id: number, name: string }[] {
-    return this._cachedSupplierOptions;
-  }
+  get isOwner() { return this.currentUser?.role === 'OWNER'; }
+  get isAdmin() { return this.currentUser?.role === 'ADMIN'; }
+  get isUser() { return this.currentUser?.role === 'USER'; }
+  get canSelectCompany() { return this.isOwner; }
+  get canSelectSupplier() { return this.isOwner || this.isAdmin; }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
     this.loadData();
   }
 
-  private loadData() {
+  private loadData(): void {
     if (this.isOwner) this.loadCompanies();
     this.loadSuppliers();
     this.loadCurrentUserSupplier();
     this.loadServices();
   }
 
-  private loadCompanies() {
+  private loadCompanies(): void {
     this.companiesService.getAll().subscribe({
-      next: d => { 
-        this.companies = d ?? []; 
-        this.cdr.detectChanges();
-      },
+      next: d => { this.companies = d ?? []; this.cdr.detectChanges(); },
       error: console.error
     });
   }
 
-  private loadSuppliers() {
+  private loadSuppliers(): void {
     this.personService.getAll().subscribe({
       next: d => {
         let suppliers = (d ?? []).filter(x => x.supplier !== null && x.supplier !== undefined);
@@ -120,7 +85,6 @@ export class ServicesComponent implements OnInit {
           suppliers = suppliers.filter(s => s.person.companyId === this.currentUser?.companyId);
         }
         this.allSuppliers = suppliers;
-        this.updateModalSuppliers();
         this.filterSuppliersByCompany();
         this.cdr.detectChanges();
       },
@@ -128,7 +92,7 @@ export class ServicesComponent implements OnInit {
     });
   }
 
-  private loadCurrentUserSupplier() {
+  private loadCurrentUserSupplier(): void {
     if (!this.currentUser) return;
     this.personService.getById(this.currentUser.personId).subscribe({
       next: (person) => {
@@ -141,7 +105,7 @@ export class ServicesComponent implements OnInit {
     });
   }
 
-  private loadServices() {
+  private loadServices(): void {
     this.loading = true;
     this.servicesService.getAll().subscribe({
       next: (d) => {
@@ -149,7 +113,6 @@ export class ServicesComponent implements OnInit {
         this.loading = false;
         this.ready = true;
         this.applyFilter();
-        this.updateCache();
         this.cdr.detectChanges();
       },
       error: (e) => {
@@ -160,7 +123,7 @@ export class ServicesComponent implements OnInit {
     });
   }
 
-  filterSuppliersByCompany() {
+  filterSuppliersByCompany(): void {
     if (this.isOwner && this.selectedCompanyId !== null) {
       this.filteredSuppliers = this.allSuppliers.filter(s => s.person.companyId === this.selectedCompanyId);
     } else {
@@ -175,7 +138,7 @@ export class ServicesComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  applyFilter() {
+  applyFilter(): void {
     let r = [...this.allServices];
     if (this.isOwner && this.selectedCompanyId !== null) {
       r = r.filter(x => x.companyId === this.selectedCompanyId);
@@ -183,282 +146,99 @@ export class ServicesComponent implements OnInit {
     if ((this.isOwner || this.isAdmin) && this.selectedSupplierId !== null) {
       r = r.filter(x => x.supplierId === this.selectedSupplierId);
     }
-    const t = this.searchTerm.trim().toLowerCase();
-    if (t) {
-      r = r.filter(x =>
-        x.name.toLowerCase().includes(t) ||
-        x.description.toLowerCase().includes(t) ||
-        x.supplierName.toLowerCase().includes(t)
-      );
-    }
     this.services = r;
-    this.updateCache();
   }
 
-  onCompanyChange() {
+  onCompanyChange(companyId: number | null): void {
+    this.selectedCompanyId = companyId;
     this.selectedSupplierId = null;
     this.filterSuppliersByCompany();
     this.applyFilter();
     this.cdr.detectChanges();
   }
 
-  onSupplierChange() {
+  onSupplierChange(supplierId: number | null): void {
+    this.selectedSupplierId = supplierId;
     this.applyFilter();
     this.cdr.detectChanges();
   }
 
-  onSearchChange() {
-    this.applyFilter();
-  }
-
-  private updateCache() {
-    let services = this.allServices;
-    if (this.isOwner && this.selectedCompanyId !== null) {
-      services = services.filter(s => s.companyId === this.selectedCompanyId);
-    }
-    const supplierMap = new Map<number, string>();
-    for (const service of services) {
-      if (!supplierMap.has(service.supplierId)) {
-        supplierMap.set(service.supplierId, service.supplierName);
-      }
-    }
-    this._cachedSupplierOptions = [];
-    for (const [id, name] of supplierMap) {
-      this._cachedSupplierOptions.push({ id, name });
-    }
-    const supplierIds = new Set(this.services.map(s => s.supplierId));
-    this._cachedUniqueSuppliers = [];
-    for (const id of supplierIds) {
-      const service = this.services.find(s => s.supplierId === id);
-      if (service) {
-        const supplier = this.allSuppliers.find(s => s.supplier?.id === id);
-        this._cachedUniqueSuppliers.push({
-          id: service.supplierId,
-          name: service.supplierName,
-          specialty: supplier?.supplier?.specialty || 'Supplier'
-        });
-      }
-    }
-  }
-
-  getServicesBySupplier(supplierId: number): ServiceDTO[] {
-    return this.services.filter(s => s.supplierId === supplierId);
-  }
-
-  getUniqueSuppliers(): { id: number, name: string, specialty?: string }[] {
-    return this._cachedUniqueSuppliers;
-  }
-
-  getStatusClass(status: string): string {
-    const classes: { [key: string]: string } = {
-      'ACTIVE': 'bg-emerald-500/10 text-emerald-400',
-      'INACTIVE': 'bg-red-500/10 text-red-400',
-      'TEMPORARILY_UNAVAILABLE': 'bg-amber-500/10 text-amber-400',
-      'ARCHIVED': 'bg-gray-500/10 text-gray-400'
-    };
-    return classes[status] || classes['ACTIVE'];
-  }
-
-  getStatusLabel(status: string): string {
-    const labels: { [key: string]: string } = {
-      'ACTIVE': 'Active',
-      'INACTIVE': 'Inactive',
-      'TEMPORARILY_UNAVAILABLE': 'Unavailable',
-      'ARCHIVED': 'Archived'
-    };
-    return labels[status] || status;
-  }
-
-  createService() {
-    const f = this.serviceForm;
-    let companyId: number | null = null;
-    if (this.isOwner) {
-      companyId = f.companyId;
-    } else if (this.isAdmin || this.isUser) {
-      companyId = this.currentUser?.companyId ?? null;
-    }
-    if (!companyId) {
-      console.error('Company ID is required');
+  onSearchChange(term: string): void {
+    const t = term.trim().toLowerCase();
+    if (!t) {
+      this.applyFilter();
       return;
     }
-    let supplierId: number | null = null;
-    if (this.isUser && this.currentUserSupplier?.supplier) {
-      supplierId = this.currentUserSupplier.supplier.id;
-    } else {
-      supplierId = f.supplierId;
-    }
-    if (!supplierId) {
-      console.error('Supplier is required');
-      return;
-    }
-    if (!f.name) {
-      console.error('Service name is required');
-      return;
-    }
-    if (!f.price) {
-      console.error('Price is required');
-      return;
-    }
-    if (!f.duration) {
-      console.error('Duration is required');
-      return;
-    }
-    const payload: ServiceCreateDTO = {
-      companyId: Number(companyId),
-      supplierId: Number(supplierId),
-      name: f.name,
-      description: f.description || '',
-      price: Number(f.price),
-      duration: Number(f.duration),
-      status: f.status || 'ACTIVE'
-    };
-    this.servicesService.create(payload).subscribe({
-      next: () => {
-        this.modalOpen = false;
-        this.loadServices();
-      },
-      error: (error) => {
-        console.error('Error creating service:', error);
-      }
-    });
+    this.services = this.allServices.filter(x =>
+      x.name.toLowerCase().includes(t) ||
+      x.description.toLowerCase().includes(t) ||
+      x.supplierName.toLowerCase().includes(t)
+    );
   }
 
-  onEdit(service: ServiceDTO) {
-    this.isEditMode = true;
-    this.editServiceId = service.id;
-    this.editForm = {
-      name: service.name,
-      description: service.description,
-      price: service.price,
-      duration: service.duration,
-      status: service.status
-    };
-    this.editModalOpen = true;
+  // ==================== MODAL CREACIÓN ====================
+  onAddClick(): void {
+    this.modalMode = 'create';
+    this.editData = null;
+    this.showModal = true;
   }
 
-  closeEditModal() {
-    this.editModalOpen = false;
-    this.editServiceId = null;
+  // ==================== MODAL EDICIÓN ====================
+  onEdit(service: ServiceDTO): void {
+    this.modalMode = 'edit';
+    this.editData = service;
+    this.showModal = true;
   }
 
-  updateService() {
-    if (!this.editServiceId) {
-      console.error('No service ID for update');
-      return;
-    }
-    const f = this.editForm;
-    const payload: ServicePatchDTO = {
-      name: f.name,
-      description: f.description,
-      price: f.price || undefined,
-      duration: f.duration || undefined,
-      status: f.status
-    };
-    this.servicesService.patch(this.editServiceId, payload).subscribe({
-      next: () => {
-        this.editModalOpen = false;
-        this.editServiceId = null;
-        this.loadServices();
-      },
-      error: console.error
-    });
-  }
-
-  onDelete(service: ServiceDTO) {
+  // ==================== MODAL ELIMINACIÓN ====================
+  onDelete(service: ServiceDTO): void {
     this.serviceToDelete = service;
-    this.deleteModalOpen = true;
+    this.showDeleteModal = true;
   }
 
-  closeDeleteModal() {
-    this.deleteModalOpen = false;
+  // ==================== CERRAR MODALES ====================
+  closeModal(): void {
+    this.showModal = false;
+    this.editData = null;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
     this.serviceToDelete = null;
   }
 
-  confirmDelete() {
+  // ==================== GUARDAR ====================
+  onSave(data: ServiceCreateDTO | ServicePatchDTO): void {
+    if (this.modalMode === 'edit' && this.editData) {
+      this.servicesService.patch(this.editData.id, data as ServicePatchDTO).subscribe({
+        next: () => {
+          this.showModal = false;
+          this.editData = null;
+          this.loadServices();
+        },
+        error: console.error
+      });
+    } else {
+      this.servicesService.create(data as ServiceCreateDTO).subscribe({
+        next: () => {
+          this.showModal = false;
+          this.loadServices();
+        },
+        error: console.error
+      });
+    }
+  }
+
+  // ==================== CONFIRMAR ELIMINACIÓN ====================
+  confirmDelete(): void {
     if (!this.serviceToDelete) return;
     this.servicesService.delete(this.serviceToDelete.id).subscribe({
       next: () => {
-        this.deleteModalOpen = false;
+        this.showDeleteModal = false;
         this.serviceToDelete = null;
         this.loadServices();
       },
       error: console.error
     });
-  }
-
-  private createEmptyForm(): ServiceForm {
-    return {
-      companyId: null,
-      supplierId: null,
-      name: '',
-      description: '',
-      price: null,
-      duration: null,
-      status: 'ACTIVE'
-    };
-  }
-
-  private createEmptyEditForm(): EditServiceForm {
-    return {
-      name: '',
-      description: '',
-      price: null,
-      duration: null,
-      status: 'ACTIVE'
-    };
-  }
-
-  openCreateModal() {
-    this.isEditMode = false;
-    this.editServiceId = null;
-    this.serviceForm = this.createEmptyForm();
-    if (this.isAdmin && this.currentUser) {
-      this.serviceForm.companyId = this.currentUser.companyId ?? null;
-    }
-    if (this.isUser && this.currentUserSupplier?.supplier) {
-      this.serviceForm.companyId = this.currentUser?.companyId ?? null;
-      this.serviceForm.supplierId = this.currentUserSupplier.supplier.id;
-    }
-    this.updateModalSuppliers();
-    this.modalOpen = true;
-    setTimeout(() => {
-      this.cdr.detectChanges();
-    }, 100);
-  }
-
-  closeModal() {
-    this.modalOpen = false;
-    this.modalSuppliers = [];
-    this.serviceForm = this.createEmptyForm();
-  }
-
-  onModalCompanyChange() {
-    this.updateModalSuppliers();
-    this.serviceForm.supplierId = null;
-    this.cdr.detectChanges();
-  }
-
-  private updateModalSuppliers() {
-    const companyId = this.serviceForm.companyId;
-    let suppliers = this.allSuppliers.filter(s => s.supplier !== null && s.supplier !== undefined);
-    if (companyId !== null && companyId !== undefined) {
-      const companyIdNum = Number(companyId);
-      suppliers = suppliers.filter(s => {
-        const supplierCompanyId = s.person.companyId;
-        return Number(supplierCompanyId) === companyIdNum;
-      });
-    }
-    this.modalSuppliers = suppliers;
-    if (this.serviceForm.supplierId !== null) {
-      const stillExists = this.modalSuppliers.some(s => s.supplier?.id === this.serviceForm.supplierId);
-      if (!stillExists) {
-        this.serviceForm.supplierId = null;
-      }
-    }
-    this.cdr.detectChanges();
-  }
-
-  trackBySupplierId(index: number, item: PersonIdentityDTO): number {
-    return item.supplier?.id ?? index;
   }
 }
