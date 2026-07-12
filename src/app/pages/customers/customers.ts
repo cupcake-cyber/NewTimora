@@ -36,7 +36,7 @@ interface EditCustomerForm {
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ModalComponent, CustomersHeader, CustomersTable, CustomerCreateModal, CustomerEditModal, CustomerDeleteModal],
+  imports: [CommonModule, FormsModule, LucideAngularModule, CustomersHeader, CustomersTable, CustomerCreateModal, CustomerEditModal, CustomerDeleteModal],
   templateUrl: './customers.html',
   styleUrl: './customers.scss'
 })
