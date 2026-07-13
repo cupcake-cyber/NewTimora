@@ -51,13 +51,36 @@ export class BookingDetailModal implements OnInit, OnChanges {
 
   icons = { X, Plus, Pen, Trash2, CircleCheckBig, Pencil, Save };
 
+  // ==================== ESTADO DE EDICIÓN ====================
   isEditingBooking = false;
-  editBookingData: BookingPatchDTO = {};
 
+  // Formulario de edición con campos separados
+  editForm: {
+    customerId: number;
+    serviceId: number;
+    date: string;          // YYYY-MM-DD
+    startTime: string;     // HH:mm
+    durationMinutes: number;
+    type: BookingType;
+    name: string;
+    description: string;
+  } = {
+    customerId: 0,
+    serviceId: 0,
+    date: '',
+    startTime: '',
+    durationMinutes: 60,
+    type: 'APPOINTMENT',
+    name: '',
+    description: ''
+  };
+
+  // ==================== ESTADO DE PAGO ====================
   showPaymentForm = false;
   isEditingPayment = false;
   paymentForm: PaymentForm = this.createEmptyPaymentForm();
 
+  // ==================== OPCIONES PARA SELECTS ====================
   paymentMethods: { value: PaymentMethod; label: string }[] = [
     { value: 'CASH', label: 'Efectivo' },
     { value: 'CREDIT_CARD', label: 'Tarjeta Crédito' },
@@ -83,6 +106,8 @@ export class BookingDetailModal implements OnInit, OnChanges {
     { value: 'RESERVATION', label: 'Reserva' }
   ];
 
+  // ==================== LIFECYCLE ====================
+
   ngOnInit(): void {
     this.resetPaymentForm();
   }
@@ -98,31 +123,87 @@ export class BookingDetailModal implements OnInit, OnChanges {
       this.isEditingPayment = false;
     }
     if (changes['booking'] && this.booking) {
-      // 🔴 Cuando el booking cambia (ej: después de guardar), salimos del modo edición y recargamos los datos
       this.isEditingBooking = false;
-      this.initEditBookingData();
+      this.initEditForm();
     }
   }
 
-  // ==================== INICIALIZAR DATOS DE EDICIÓN ====================
+  // ==================== INICIALIZAR FORMULARIO DE EDICIÓN ====================
 
-  private initEditBookingData(): void {
+  private initEditForm(): void {
     if (!this.booking) return;
-    this.editBookingData = {
-      serviceId: this.booking.serviceId,
+
+    const start = new Date(this.booking.startTime);
+    const end = new Date(this.booking.endTime);
+    const duration = Math.round((end.getTime() - start.getTime()) / 60000);
+
+    // Intentar obtener la duración del servicio
+    const service = this.services.find(s => s.id === this.booking?.serviceId);
+    const serviceDuration = service?.duration || duration;
+
+    this.editForm = {
       customerId: this.booking.customerId,
-      startTime: this.booking.startTime,
-      endTime: this.booking.endTime,
+      serviceId: this.booking.serviceId,
+      date: this.formatDate(start),
+      startTime: this.formatTime(start),
+      durationMinutes: serviceDuration,
       type: this.booking.type,
-      name: this.booking.name,
-      description: this.booking.description
+      name: this.booking.name || '',
+      description: this.booking.description || ''
     };
   }
 
-  // ==================== GETTERS (sin cambios) ====================
+  // ==================== FORMATOS ====================
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private formatTime(date: Date): string {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  private formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
+  // ==================== GETTERS ====================
 
   get modalTitle(): string {
     return `Detalle de cita #${this.booking?.id || ''}`;
+  }
+
+  get minDate(): string {
+    return this.formatDate(new Date());
+  }
+
+  get minTime(): string {
+    const now = new Date();
+    const today = this.formatDate(now);
+    if (this.editForm.date === today) {
+      return this.formatTime(now);
+    }
+    return '00:00';
+  }
+
+  // 🔥 Getter para mostrar la hora de fin estimada
+  get endTimeDisplay(): string {
+    if (!this.editForm.date || !this.editForm.startTime || !this.editForm.durationMinutes) {
+      return '--:--';
+    }
+    const end = this.buildEndDateTime();
+    return this.formatTime(end);
   }
 
   get customerName(): string {
@@ -227,9 +308,9 @@ export class BookingDetailModal implements OnInit, OnChanges {
     return !this.isBookingCancelled;
   }
 
-  // ==================== FORMATOS (sin cambios) ====================
+  // ==================== FORMATOS PARA MOSTRAR ====================
 
-  formatDate(dateStr: string): string {
+  formatDateDisplay(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
@@ -238,7 +319,7 @@ export class BookingDetailModal implements OnInit, OnChanges {
     });
   }
 
-  formatTime(dateStr: string): string {
+  formatTimeDisplay(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
@@ -262,7 +343,7 @@ export class BookingDetailModal implements OnInit, OnChanges {
     return formatPaymentAmount(amount);
   }
 
-  // ==================== FORMULARIO DE PAGO (sin cambios) ====================
+  // ==================== FORMULARIO DE PAGO ====================
 
   createEmptyPaymentForm(): PaymentForm {
     return {
@@ -327,26 +408,79 @@ export class BookingDetailModal implements OnInit, OnChanges {
     this.closePaymentForm();
   }
 
-  // ==================== EDICIÓN DEL BOOKING (sin cambios) ====================
+  // ==================== CONSTRUIR FECHAS ====================
+
+  private buildStartDateTime(): Date {
+    const [year, month, day] = this.editForm.date.split('-').map(Number);
+    const [hours, minutes] = this.editForm.startTime.split(':').map(Number);
+    return new Date(year, month - 1, day, hours, minutes);
+  }
+
+  private buildEndDateTime(): Date {
+    const start = this.buildStartDateTime();
+    return new Date(start.getTime() + this.editForm.durationMinutes * 60000);
+  }
+
+  // ==================== EVENTOS DEL FORMULARIO DE EDICIÓN ====================
+
+  onServiceChange(serviceId: number): void {
+    this.editForm.serviceId = serviceId;
+    const service = this.services.find(s => s.id === serviceId);
+    if (service && service.duration) {
+      this.editForm.durationMinutes = service.duration;
+    }
+  }
+
+  onCustomerChange(customerId: number): void {
+    this.editForm.customerId = customerId;
+  }
+
+  onDateChange(): void {
+    // El getter endTimeDisplay se actualiza automáticamente
+  }
+
+  onStartTimeChange(): void {
+    // El getter endTimeDisplay se actualiza automáticamente
+  }
+
+  // ==================== TOGGLE EDICIÓN ====================
 
   toggleEditBooking(): void {
     if (this.isEditingBooking) {
       this.isEditingBooking = false;
-      this.initEditBookingData();
+      this.initEditForm();
     } else {
       this.isEditingBooking = true;
     }
   }
 
+  // ==================== GUARDAR EDICIÓN ====================
+
   onSaveBookingEdit(): void {
     if (!this.booking) return;
+
+    const start = this.buildStartDateTime();
+    const end = this.buildEndDateTime();
+
+    const patchData: BookingPatchDTO = {
+      serviceId: this.editForm.serviceId,
+      customerId: this.editForm.customerId,
+      startTime: this.formatDateTimeLocal(start),
+      endTime: this.formatDateTimeLocal(end),
+      type: this.editForm.type,
+      name: this.editForm.name || '',
+      description: this.editForm.description || ''
+    };
+
+    console.log('🔍 Enviando PATCH:', patchData);
+
     this.updateBookingFull.emit({
       id: this.booking.id,
-      data: this.editBookingData
+      data: patchData
     });
   }
 
-  // ==================== ACCIONES (sin cambios) ====================
+  // ==================== ACCIONES DEL BOOKING ====================
 
   onCompleteBooking(): void {
     if (!this.booking) return;
@@ -398,5 +532,9 @@ export class BookingDetailModal implements OnInit, OnChanges {
 
   getServiceNameForSelect(service: ServiceDTO): string {
     return service.name;
+  }
+
+  getServiceDurationForSelect(service: ServiceDTO): number {
+    return service.duration || 0;
   }
 }

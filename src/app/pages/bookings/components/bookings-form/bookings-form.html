@@ -47,7 +47,7 @@
           </label>
           <select
             [(ngModel)]="form.customerId"
-            (change)="onCustomerChange($event)"
+            (change)="onCustomerChange(+$any($event.target).value)"
             class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
             <option value="0">Seleccionar cliente…</option>
             <option *ngFor="let customer of customers; trackBy: trackByCustomer" [value]="customer.customer?.id">
@@ -63,37 +63,63 @@
           </label>
           <select
             [(ngModel)]="form.serviceId"
-            (change)="onServiceChange($event)"
+            (change)="onServiceChange(+$any($event.target).value)"
             class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
             <option value="0">Seleccionar servicio…</option>
             <option *ngFor="let service of services; trackBy: trackByService" [value]="service.id">
-              {{ service.name }}
+              {{ service.name }} ({{ service.duration }} min)
             </option>
           </select>
         </div>
 
-        <!-- Fecha/Hora Inicio -->
+        <!-- Fecha -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Inicio <span class="text-destructive">*</span>
+            Fecha <span class="text-destructive">*</span>
           </label>
           <input
-            type="datetime-local"
-            [(ngModel)]="form.startTime"
-            [min]="minDateTime"
+            type="date"
+            [(ngModel)]="form.date"
+            [min]="minDate"
+            (change)="onDateChange()"
             class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
         </div>
 
-        <!-- Fecha/Hora Fin -->
+        <!-- Hora inicio -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Fin <span class="text-destructive">*</span>
+            Hora inicio <span class="text-destructive">*</span>
           </label>
           <input
-            type="datetime-local"
-            [(ngModel)]="form.endTime"
-            [min]="form.startTime || minDateTime"
+            type="time"
+            [(ngModel)]="form.startTime"
+            [min]="minTime"
+            (change)="onStartTimeChange()"
             class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all">
+        </div>
+
+        <!-- Duración (solo lectura, se calcula del servicio) -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Duración (min)
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="form.durationMinutes"
+            disabled
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground opacity-70 cursor-not-allowed">
+        </div>
+
+        <!-- Fin estimado (solo lectura) -->
+        <div>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5">
+            Fin estimado
+          </label>
+          <input
+            type="text"
+            [value]="(form.date && form.startTime && form.durationMinutes) ? (buildEndDateTime() | date:'HH:mm') : '--:--'"
+            disabled
+            class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground opacity-70 cursor-not-allowed">
         </div>
 
         <!-- Tipo -->

@@ -64,7 +64,8 @@
           <div *ngIf="!isEditingBooking" class="text-sm font-medium text-foreground">{{ customerName }}</div>
           <div *ngIf="isEditingBooking">
             <select
-              [(ngModel)]="editBookingData.customerId"
+              [(ngModel)]="editForm.customerId"
+              (change)="onCustomerChange(+$any($event.target).value)"
               class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
               <option *ngFor="let customer of customers" [value]="customer.customer?.id">
                 {{ getPersonName(customer) }}
@@ -80,37 +81,73 @@
           <div *ngIf="!isEditingBooking" class="text-sm font-medium text-foreground">{{ serviceName }}</div>
           <div *ngIf="isEditingBooking">
             <select
-              [(ngModel)]="editBookingData.serviceId"
+              [(ngModel)]="editForm.serviceId"
+              (change)="onServiceChange(+$any($event.target).value)"
               class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
               <option *ngFor="let service of services" [value]="service.id">
-                {{ getServiceNameForSelect(service) }}
+                {{ getServiceNameForSelect(service) }} ({{ getServiceDurationForSelect(service) }} min)
               </option>
             </select>
           </div>
           <div *ngIf="!isEditingBooking" class="text-xs text-muted-foreground">{{ servicePrice }} · {{ serviceDuration }}</div>
         </div>
 
-        <!-- Fechas -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <div class="text-xs text-muted-foreground mb-1">Inicio</div>
-            <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ formatDate(booking?.startTime || '') }} {{ formatTime(booking?.startTime || '') }}</div>
-            <div *ngIf="isEditingBooking">
+        <!-- Fechas en modo edición -->
+        <div *ngIf="isEditingBooking">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Fecha -->
+            <div>
+              <div class="text-xs text-muted-foreground mb-1">Fecha</div>
               <input
-                type="datetime-local"
-                [(ngModel)]="editBookingData.startTime"
+                type="date"
+                [(ngModel)]="editForm.date"
+                [min]="minDate"
+                (change)="onDateChange()"
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+            </div>
+            <!-- Hora inicio -->
+            <div>
+              <div class="text-xs text-muted-foreground mb-1">Hora inicio</div>
+              <input
+                type="time"
+                [(ngModel)]="editForm.startTime"
+                [min]="minTime"
+                (change)="onStartTimeChange()"
+                step="60"
                 class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
             </div>
           </div>
+          <div class="grid grid-cols-2 gap-4 mt-3">
+            <!-- Duración (solo lectura) -->
+            <div>
+              <div class="text-xs text-muted-foreground mb-1">Duración (min)</div>
+              <input
+                type="number"
+                [(ngModel)]="editForm.durationMinutes"
+                disabled
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground opacity-70 cursor-not-allowed">
+            </div>
+            <!-- Fin estimado (solo lectura) -->
+            <div>
+              <div class="text-xs text-muted-foreground mb-1">Fin estimado</div>
+              <input
+                type="text"
+                [value]="endTimeDisplay"
+                disabled
+                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground opacity-70 cursor-not-allowed">
+            </div>
+          </div>
+        </div>
+
+        <!-- Fechas en modo visualización -->
+        <div *ngIf="!isEditingBooking" class="grid grid-cols-2 gap-4">
+          <div>
+            <div class="text-xs text-muted-foreground mb-1">Inicio</div>
+            <div class="text-sm text-foreground">{{ formatDateDisplay(booking?.startTime || '') }} {{ formatTimeDisplay(booking?.startTime || '') }}</div>
+          </div>
           <div>
             <div class="text-xs text-muted-foreground mb-1">Fin</div>
-            <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ formatDate(booking?.endTime || '') }} {{ formatTime(booking?.endTime || '') }}</div>
-            <div *ngIf="isEditingBooking">
-              <input
-                type="datetime-local"
-                [(ngModel)]="editBookingData.endTime"
-                class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
-            </div>
+            <div class="text-sm text-foreground">{{ formatDateDisplay(booking?.endTime || '') }} {{ formatTimeDisplay(booking?.endTime || '') }}</div>
           </div>
         </div>
 
@@ -118,7 +155,7 @@
         <div *ngIf="isEditingBooking">
           <div class="text-xs text-muted-foreground mb-1">Tipo</div>
           <select
-            [(ngModel)]="editBookingData.type"
+            [(ngModel)]="editForm.type"
             class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
             <option *ngFor="let option of typeOptions" [value]="option.value">
               {{ option.label }}
@@ -133,7 +170,7 @@
           <div *ngIf="isEditingBooking">
             <input
               type="text"
-              [(ngModel)]="editBookingData.name"
+              [(ngModel)]="editForm.name"
               placeholder="Nombre de la cita"
               class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
           </div>
@@ -145,7 +182,7 @@
           <div *ngIf="!isEditingBooking" class="text-sm text-foreground">{{ booking?.description || '—' }}</div>
           <div *ngIf="isEditingBooking">
             <textarea
-              [(ngModel)]="editBookingData.description"
+              [(ngModel)]="editForm.description"
               rows="2"
               placeholder="Notas opcionales…"
               class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none">
@@ -153,9 +190,8 @@
           </div>
         </div>
 
-        <!-- PAGO -->
+        <!-- PAGO (sin cambios) -->
         <div *ngIf="!showPaymentForm">
-          <!-- Sin pago -->
           <div *ngIf="!hasPayment">
             <button
               *ngIf="canAddPayment"
@@ -169,7 +205,6 @@
             </div>
           </div>
 
-          <!-- Con pago -->
           <div *ngIf="hasPayment" class="bg-secondary rounded-xl p-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pago</span>
@@ -200,7 +235,7 @@
           </div>
         </div>
 
-        <!-- FORMULARIO DE PAGO -->
+        <!-- FORMULARIO DE PAGO (sin cambios) -->
         <div *ngIf="showPaymentForm" class="bg-secondary rounded-xl p-4 space-y-3">
           <div class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             {{ isEditingPayment ? 'Editar pago' : 'Nuevo pago' }}

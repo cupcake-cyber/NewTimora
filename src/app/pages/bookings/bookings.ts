@@ -380,41 +380,50 @@ export class BookingsComponent implements OnInit {
   }
 
   // ==================== MODAL - CREACIÓN ====================
-  onAddClick(): void {
-    console.log('➕ Abriendo modal de creación');
-    
-    let defaultCompanyId = this.currentUser?.companyId || 0;
-    let defaultSupplierId = this.selectedSupplierId || 0;
-    
-    if (this.isUser && this.currentUser?.personId) {
-      const userSupplier = this.allSuppliers.find(s => s.person.id === this.currentUser!.personId);
-      if (userSupplier) {
-        defaultSupplierId = userSupplier.supplier?.id || 0;
-        defaultCompanyId = userSupplier.person.companyId;
-      }
+onAddClick(): void {
+  console.log('➕ Abriendo modal de creación');
+  
+  let defaultCompanyId = 0;
+  let defaultSupplierId = this.selectedSupplierId || 0;
+  
+  // 🔴 Obtener companyId del supplier seleccionado
+  if (this.selectedSupplierId) {
+    const supplier = this.allSuppliers.find(s => s.supplier?.id === this.selectedSupplierId);
+    if (supplier) {
+      defaultCompanyId = supplier.person.companyId;
     }
-    
-    if (defaultCompanyId === 0 && this.selectedCompanyId) {
-      defaultCompanyId = this.selectedCompanyId;
-    }
-    
-    const now = new Date();
-    const end = new Date(now.getTime() + 60 * 60 * 1000);
-    
-    this.createFormData = {
-      companyId: defaultCompanyId,
-      serviceId: 0,
-      customerId: 0,
-      startTime: this.formatDateTimeLocal(now),
-      endTime: this.formatDateTimeLocal(end),
-      type: 'APPOINTMENT',
-      name: '',
-      description: ''
-    };
-    
-    this.showCreateModal = true;
   }
-
+  
+  // Si no hay supplier seleccionado pero es USER, usar su compañía
+  if (defaultCompanyId === 0 && this.isUser && this.currentUser?.personId) {
+    const userSupplier = this.allSuppliers.find(s => s.person.id === this.currentUser!.personId);
+    if (userSupplier) {
+      defaultCompanyId = userSupplier.person.companyId;
+      defaultSupplierId = userSupplier.supplier?.id || 0;
+    }
+  }
+  
+  // Fallback: usar compañía del usuario
+  if (defaultCompanyId === 0) {
+    defaultCompanyId = this.currentUser?.companyId || 0;
+  }
+  
+  const now = new Date();
+  const end = new Date(now.getTime() + 60 * 60 * 1000);
+  
+  this.createFormData = {
+    companyId: defaultCompanyId,
+    serviceId: 0,
+    customerId: 0,
+    startTime: this.formatDateTimeLocal(now),
+    endTime: this.formatDateTimeLocal(end),
+    type: 'APPOINTMENT',
+    name: '',
+    description: ''
+  };
+  
+  this.showCreateModal = true;
+}
   closeCreateModal(): void {
     this.showCreateModal = false;
     this.createFormData = null;
@@ -614,6 +623,7 @@ export class BookingsComponent implements OnInit {
   }
 // En BookingsComponent añadir método:
 onUpdateBookingFull(event: { id: number; data: BookingPatchDTO }): void {
+  console.log('📤 PATCH recibido en padre:', event);
   this.loading = true;
   this.bookingService.patch(event.id, event.data).subscribe({
     next: () => {
