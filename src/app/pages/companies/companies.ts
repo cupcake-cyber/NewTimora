@@ -54,8 +54,16 @@ export class CompaniesComponent implements OnInit {
   loadCompanies(): void {
     this.loading = true;
     this.companiesService.getAll().subscribe({
-      next: res => { this.companies = res; this.loading = false; this.cdr.detectChanges(); },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
+      next: res => {
+  
+        this.companies = (res ?? []).filter(c => c.status === 'ACTIVE');
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
