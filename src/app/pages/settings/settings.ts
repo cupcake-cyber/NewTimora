@@ -2,8 +2,10 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { CardComponent } from '../../components/card/card/card';
-import { CardContentComponent } from '../../components/card/card-content/card-content';
+import { SettingsHeader } from './components/settings-header/settings-header';
+import { SettingsNotificationsCard } from './components/settings-notifications-card/settings-notifications-card';
+import { SettingsChannelsCard } from './components/settings-channels-card/settings-channels-card';
+import { SettingsAppearanceCard } from './components/settings-appearance-card/settings-appearance-card';
 
 import { Configuration } from '../../models/configuration';
 import { ConfigurationService } from '../../services/configuration/configuration';
@@ -16,14 +18,15 @@ import { Subscription } from 'rxjs';
   imports: [
     CommonModule,
     FormsModule,
-    CardComponent,
-    CardContentComponent
+    SettingsHeader,
+    SettingsNotificationsCard,
+    SettingsChannelsCard,
+    SettingsAppearanceCard
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
   private configurationService = inject(ConfigurationService);
 
   private sub = new Subscription();
@@ -48,16 +51,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // INIT
   // =========================
   ngOnInit(): void {
-
     this.sub.add(
-      this.configurationService.config$
-        .subscribe(cfg => {
-          if (!cfg) return;
+      this.configurationService.config$.subscribe((cfg) => {
+        if (!cfg) return;
 
-          this.config = cfg;
-        })
+        this.config = cfg;
+      }),
     );
-
   }
 
   ngOnDestroy(): void {
@@ -69,52 +69,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // SAVE QUEUE (DEBOUNCE)
   // =========================
   private queueSave(patch: Partial<Configuration>): void {
-
     this.lastPatch = {
       ...this.lastPatch,
-      ...patch
+      ...patch,
     };
 
     clearTimeout(this.saveTimeout);
 
     this.saveTimeout = setTimeout(() => {
-
-      this.configurationService.patch(this.lastPatch)
-        .subscribe({
-          error: err => console.error('Error saving configuration', err)
-        });
+      this.configurationService.patch(this.lastPatch).subscribe({
+        error: (err) => console.error('Error saving configuration', err),
+      });
 
       this.lastPatch = {};
-
     }, 400);
   }
 
   private flushSave(): void {
-
     if (this.saveTimeout) {
-
       clearTimeout(this.saveTimeout);
 
       if (Object.keys(this.lastPatch).length > 0) {
-
-        this.configurationService.patch(this.lastPatch)
-          .subscribe({
-            error: err => console.error('Flush save error', err)
-          });
-
+        this.configurationService.patch(this.lastPatch).subscribe({
+          error: (err) => console.error('Flush save error', err),
+        });
       }
 
       this.lastPatch = {};
-
     }
-
   }
 
   // =========================
   // TOGGLE
   // =========================
   toggle<K extends keyof Configuration>(key: K): void {
-
     const current = this.config[key];
 
     if (typeof current !== 'boolean') {
@@ -125,31 +113,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.config = {
       ...this.config,
-      [key]: updated
+      [key]: updated,
     };
 
     this.queueSave({
-      [key]: updated
+      [key]: updated,
     });
-
   }
 
   // =========================
   // SLIDER
   // =========================
   updateReminder(event: Event): void {
-
     const value = Number((event.target as HTMLInputElement).value);
 
     this.config = {
       ...this.config,
-      reminderMinutesBefore: value
+      reminderMinutesBefore: value,
     };
 
     this.queueSave({
-      reminderMinutesBefore: value
+      reminderMinutesBefore: value,
     });
-
   }
-
 }

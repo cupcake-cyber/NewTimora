@@ -1,0 +1,109 @@
+<app-card>
+  <app-card-content class="p-6">
+
+    <h2 class="text-sm font-semibold text-foreground mb-0.5">
+      Notificaciones
+    </h2>
+
+    <p class="text-xs text-muted-foreground mb-4">
+      Elige qué eventos generan notificaciones
+    </p>
+
+    <div class="divide-y divide-border">
+
+      <div class="flex items-center justify-between py-3">
+        <div>
+          <div class="text-sm font-medium text-foreground">Citas</div>
+          <div class="text-xs text-muted-foreground">
+            Confirmaciones de nuevas citas
+          </div>
+        </div>
+
+        <button
+          (click)="toggle.emit('notifyAppointments')"
+          class="relative rounded-full transition-colors shrink-0"
+          [class.bg-primary]="config.notifyAppointments"
+          [class.bg-switch]="!config.notifyAppointments"
+          style="width: 40px; height: 22px;"
+        >
+          <div
+            class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+            style="width: 18px; height: 18px;"
+            [style.transform]="config.notifyAppointments ? 'translateX(20px)' : 'translateX(2px)'"
+          ></div>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between py-3">
+        <div>
+          <div class="text-sm font-medium text-foreground">Reservas</div>
+          <div class="text-xs text-muted-foreground">
+            Alertas de nuevas reservas
+          </div>
+        </div>
+
+        <button
+          (click)="toggle.emit('notifyReservations')"
+          class="relative rounded-full transition-colors shrink-0"
+          [class.bg-primary]="config.notifyReservations"
+          [class.bg-switch]="!config.notifyReservations"
+          style="width: 40px; height: 22px;"
+        >
+          <div
+            class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+            style="width: 18px; height: 18px;"
+            [style.transform]="config.notifyReservations ? 'translateX(20px)' : 'translateX(2px)'"
+          ></div>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between py-3">
+        <div>
+          <div class="text-sm font-medium text-foreground">Cancelaciones</div>
+          <div class="text-xs text-muted-foreground">
+            Alertas de cancelación de citas
+          </div>
+        </div>
+
+        <button
+          (click)="toggle.emit('notifyCancellations')"
+          class="relative rounded-full transition-colors shrink-0"
+          [class.bg-primary]="config.notifyCancellations"
+          [class.bg-switch]="!config.notifyCancellations"
+          style="width: 40px; height: 22px;"
+        >
+          <div
+            class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+            style="width: 18px; height: 18px;"
+            [style.transform]="config.notifyCancellations ? 'translateX(20px)' : 'translateX(2px)'"
+          ></div>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between py-3">
+        <div>
+          <div class="text-sm font-medium text-foreground">Recordatorios</div>
+          <div class="text-xs text-muted-foreground">
+            Recordatorios de próximas citas
+          </div>
+        </div>
+
+        <button
+          (click)="toggle.emit('notifyReminders')"
+          class="relative rounded-full transition-colors shrink-0 "
+          [class.bg-primary]="config.notifyReminders"
+          [class.bg-switch]="!config.notifyReminders"
+          style="width: 40px; height: 22px;"
+        >
+          <div
+            class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+            style="width: 18px; height: 18px;"
+            [style.transform]="config.notifyReminders ? 'translateX(20px)' : 'translateX(2px)'"
+          ></div>
+        </button>
+      </div>
+
+    </div>
+
+  </app-card-content>
+</app-card>

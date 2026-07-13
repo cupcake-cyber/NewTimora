@@ -1,0 +1,54 @@
+<app-card>
+  <app-card-content class="p-6">
+
+    <h2 class="text-sm font-semibold text-foreground mb-3">
+      Apariencia
+    </h2>
+
+    <div class="flex items-center justify-between py-3 border-b border-border">
+      <div>
+        <div class="text-sm font-medium text-foreground">Modo oscuro</div>
+        <div class="text-xs text-muted-foreground">
+          Usar tema de colores oscuro
+        </div>
+      </div>
+
+      <button
+        (click)="toggle.emit('darkMode')"
+        class="relative rounded-full transition-colors shrink-0"
+        [class.bg-primary]="config.darkMode"
+        [class.bg-switch]="!config.darkMode"
+        style="width: 40px; height: 22px;"
+      >
+        <div
+          class="absolute top-0.5 rounded-full bg-white shadow transition-transform"
+          style="width: 18px; height: 18px;"
+          [style.transform]="config.darkMode ? 'translateX(20px)' : 'translateX(2px)'"
+        ></div>
+      </button>
+    </div>
+
+    <div class="mt-4 pt-2">
+      <div class="text-xs text-muted-foreground mb-2">
+        Tiempo de recordatorio
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input
+          type="range"
+          min="5"
+          max="120"
+          step="5"
+          [value]="config.reminderMinutesBefore"
+          (input)="updateReminder.emit($event)"
+          class="flex-1 accent-primary"
+        />
+
+        <span class="text-sm font-semibold text-foreground w-16 text-right">
+              {{ config.reminderMinutesBefore }} min
+            </span>
+      </div>
+    </div>
+
+  </app-card-content>
+</app-card>
