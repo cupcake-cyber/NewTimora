@@ -1,8 +1,8 @@
 <!-- my-schedule/components/bookings/components/bookings-header/bookings-header.html -->
 <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
   <div>
-    <h1 class="text-xl font-semibold text-foreground">Bookings</h1>
-    <p class="text-sm text-muted-foreground">{{ totalBookings }} bookings</p>
+    <h1 class="text-xl font-semibold text-foreground">Agenda</h1>
+    <p class="text-sm text-muted-foreground">{{ totalBookings }} agendados</p>
   </div>
 
   <div class="flex items-center gap-2">
@@ -32,7 +32,7 @@
       [disabled]="!canCreate || isLoading"
       class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
       <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
-      <span>Add booking</span>
+      <span>Agendar Nuevo</span>
     </button>
   </div>
 </div>

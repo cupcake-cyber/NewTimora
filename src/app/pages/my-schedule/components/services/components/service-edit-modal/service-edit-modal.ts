@@ -23,7 +23,7 @@ interface EditServiceForm {
 })
 export class ServiceEditModal {
   @Input() open = false;
-  @Input() isLoading = false;  // ← AGREGAR
+  @Input() isLoading = false;
   @Input() editForm!: EditServiceForm;
 
   @Output() openChange = new EventEmitter<boolean>();

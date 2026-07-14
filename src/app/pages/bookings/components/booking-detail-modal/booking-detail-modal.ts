@@ -180,7 +180,7 @@ export class BookingDetailModal implements OnInit, OnChanges {
   // ==================== GETTERS ====================
 
   get modalTitle(): string {
-    return `Detalle de cita #${this.booking?.id || ''}`;
+    return `Detalle de cita/reserva #${this.booking?.id || ''}`;
   }
 
   get minDate(): string {
@@ -484,35 +484,35 @@ export class BookingDetailModal implements OnInit, OnChanges {
 
   onConfirmBooking(): void {
     if (!this.booking) return;
-    if (confirm('¿Confirmar esta cita?')) {
+    if (confirm('¿Confirmar esta cita/reserva?')) {
       this.updateBookingStatus.emit({ id: this.booking.id, status: 'CONFIRMED' });
     }
   }
 
   onReopenBooking(): void {
     if (!this.booking) return;
-    if (confirm('¿Reabrir esta cita (volver a Pendiente)?')) {
+    if (confirm('¿Reabrir esta cita/reserva (volver a Pendiente)?')) {
       this.updateBookingStatus.emit({ id: this.booking.id, status: 'PENDING' });
     }
   }
 
   onCompleteBooking(): void {
     if (!this.booking) return;
-    if (confirm('¿Marcar esta cita como completada?')) {
+    if (confirm('¿Marcar esta cita/reserva como completada?')) {
       this.updateBookingStatus.emit({ id: this.booking.id, status: 'COMPLETED' });
     }
   }
 
   onCancelBooking(): void {
     if (!this.booking) return;
-    if (confirm('¿Cancelar esta cita?')) {
+    if (confirm('¿Cancelar esta cita/reserva?')) {
       this.updateBookingStatus.emit({ id: this.booking.id, status: 'CANCELLED' });
     }
   }
 
   onDeleteBooking(): void {
     if (!this.booking) return;
-    if (confirm('¿Eliminar esta cita? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Eliminar esta cita/reserva? Esta acción no se puede deshacer.')) {
       this.deleteBooking.emit(this.booking.id);
     }
   }

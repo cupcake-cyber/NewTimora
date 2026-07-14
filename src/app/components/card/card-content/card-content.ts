@@ -15,7 +15,7 @@ export class CardContentComponent {
 
   @Input() className = '';
 
-  // opcional: control de padding base
+
   @Input() padding: 'none' | 'sm' | 'md' | 'lg' = 'md';
 
   private paddingMap = {

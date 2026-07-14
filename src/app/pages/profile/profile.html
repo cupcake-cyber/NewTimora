@@ -5,7 +5,7 @@
     <!-- HEADER -->
     <div>
       <h1 class="text-xl font-semibold text-foreground">
-        Profile
+        Perfil
       </h1>
 
       <p class="text-sm text-muted-foreground font-mono">
@@ -18,36 +18,36 @@
       class="bg-card border border-border rounded-2xl p-6 space-y-5">
 
       <h2 class="text-sm font-semibold text-foreground">
-        Personal Information
+        Información Personal
       </h2>
 
       <div class="grid grid-cols-2 gap-4">
 
         <div class="space-y-1">
-          <label class="text-xs text-muted-foreground">First Name</label>
-          <app-input formControlName="firstName" placeholder="First Name"></app-input>
+          <label class="text-xs text-muted-foreground">Nombre</label>
+          <app-input formControlName="firstName" placeholder="Nombre"></app-input>
         </div>
 
         <div class="space-y-1">
-          <label class="text-xs text-muted-foreground">Last Name</label>
-          <app-input formControlName="lastName" placeholder="Last Name"></app-input>
+          <label class="text-xs text-muted-foreground">Apellido</label>
+          <app-input formControlName="lastName" placeholder="Apellido"></app-input>
         </div>
 
         <div class="space-y-1">
-          <label class="text-xs text-muted-foreground">Phone</label>
-          <app-input formControlName="phone" placeholder="Phone"></app-input>
+          <label class="text-xs text-muted-foreground">Teléfono</label>
+          <app-input formControlName="phone" placeholder="Teléfono"></app-input>
         </div>
 
         <div class="space-y-1">
-          <label class="text-xs text-muted-foreground">Contact Email</label>
-          <app-input formControlName="email" placeholder="Email" type="email"></app-input>
+          <label class="text-xs text-muted-foreground">Correo de Contacto</label>
+          <app-input formControlName="email" placeholder="Correo electrónico" type="email"></app-input>
         </div>
 
       </div>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Address</label>
-        <app-input formControlName="address" placeholder="Address"></app-input>
+        <label class="text-xs text-muted-foreground">Dirección</label>
+        <app-input formControlName="address" placeholder="Dirección"></app-input>
       </div>
 
     </form>
@@ -58,17 +58,17 @@
       class="bg-card border border-border rounded-2xl p-6 space-y-5">
 
       <h2 class="text-sm font-semibold text-foreground">
-        Supplier (optional)
+        Proveedor (opcional)
       </h2>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Specialty</label>
-        <app-input formControlName="specialty" placeholder="Specialty"></app-input>
+        <label class="text-xs text-muted-foreground">Especialidad</label>
+        <app-input formControlName="specialty" placeholder="Especialidad"></app-input>
       </div>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Notes</label>
-        <app-input formControlName="notes" placeholder="Notes"></app-input>
+        <label class="text-xs text-muted-foreground">Notas</label>
+        <app-input formControlName="notes" placeholder="Notas"></app-input>
       </div>
 
     </form>
@@ -76,7 +76,7 @@
     <!-- SAVE BUTTON (GLOBAL) -->
     <div class="pt-2">
       <app-button type="button" (click)="save()">
-        Save Changes
+        Guardar Cambios
       </app-button>
     </div>
 

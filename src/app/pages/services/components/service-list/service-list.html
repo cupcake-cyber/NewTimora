@@ -1,5 +1,5 @@
 <div *ngIf="services.length === 0" class="text-center py-12">
-  <p class="text-muted-foreground">No services found</p>
+  <p class="text-muted-foreground">No se encontraron servicios</p>
 </div>
 
 
@@ -18,11 +18,11 @@
     </span>
 
     <span class="text-xs text-muted-foreground">
-      · {{ supplier.specialty || 'Supplier' }}
+      · {{ supplier.specialty || 'Proveedor' }}
     </span>
 
     <span class="text-xs text-muted-foreground ml-auto">
-      {{ getServicesBySupplier(supplier.id).length }} services
+      {{ getServicesBySupplier(supplier.id).length }} servicios
     </span>
   </div>
 

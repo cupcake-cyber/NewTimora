@@ -17,7 +17,7 @@ import { ServicesComponent } from './components/services/services';  // ← IMPO
 
 export type ScheduleTab = 'BOOKINGS' | 'AVAILABILITY' | 'SERVICES' | 'CUSTOMERS';
 
-// Definición de tabs con sus permisos requeridos
+
 interface TabConfig {
   key: ScheduleTab;
   label: string;
@@ -36,8 +36,7 @@ interface TabConfig {
     MyScheduleSupplierSelectorComponent,
     BookingsComponent,
     AvailabilitiesComponent,
-    ServicesComponent,  // ← AGREGAR SERVICES
-    // CustomersComponent, // ← Para cuando esté listo
+    ServicesComponent,  
   ],
   templateUrl: './my-schedule.html',
   styleUrls: ['./my-schedule.scss']

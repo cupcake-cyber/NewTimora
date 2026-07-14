@@ -7,9 +7,9 @@
 
       <!-- TITLE -->
       <div>
-        <h1 class="text-xl font-semibold text-foreground">Users</h1>
+        <h1 class="text-xl font-semibold text-foreground">Usuarios</h1>
         <p class="text-sm text-muted-foreground">
-          {{ users.length }} members
+          {{ users.length }} miembros
         </p>
       </div>
 
@@ -22,7 +22,7 @@
             class="w-full bg-secondary  rounded-xl px-3 py-2 text-sm text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
             [(ngModel)]="selectedCompanyId" (ngModelChange)="applyFilter()">
 
-            <option [ngValue]="null">All companies</option>
+            <option [ngValue]="null">Todas las Compañias</option>
 
             <option *ngFor="let c of companies" [ngValue]="c.id">
               {{ c.name }}
@@ -37,7 +37,7 @@
             class="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4">
           </lucide-angular>
 
-          <input [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search users…"
+          <input [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Buscar usuarios…"
             class="pl-8 pr-3 py-1.5 text-sm bg-secondary transition border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 w-44 text-foreground placeholder:text-muted-foreground" />
         </div>
 
@@ -46,7 +46,7 @@
           class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95">
 
           <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
-          New User
+          Nuevo Usuario
         </button>
 
       </div>
@@ -60,12 +60,12 @@
         <!-- HEADER -->
         <thead class="border-b border-border">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">User</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Email</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Role</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Type</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Permissions</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Usuario</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Correo</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Rol</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Tipo</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Estado</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Permisos</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
@@ -120,19 +120,19 @@
                 <!-- USER (solo si existe user) -->
                 <span *ngIf="u.user"
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  User
+                  Usuario
                 </span>
 
                 <!-- CUSTOMER -->
                 <span *ngIf="u.customer"
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
-                  Customer
+                  Cliente
                 </span>
 
                 <!-- SUPPLIER -->
                 <span *ngIf="u.supplier"
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
-                  Supplier
+                  Proveedor
                 </span>
 
               </div>
@@ -157,11 +157,11 @@
                 <lucide-angular [img]="icons.Shield" class="w-4 h-4"></lucide-angular>
                 Perms
               </button>
-              <span *ngIf="u.user?.role === 'OWNER'" class="text-xs text-amber-400/70" title="Owner has full access">
-                Full Access
+              <span *ngIf="u.user?.role === 'OWNER'" class="text-xs text-amber-400/70" title="El propietario tiene acceso completo">
+                Acceso Total
               </span>
-              <span *ngIf="u.user?.role === 'ADMIN'" class="text-xs text-blue-400/70" title="Admin has full access">
-                Tenant Access
+              <span *ngIf="u.user?.role === 'ADMIN'" class="text-xs text-blue-400/70" title="El administrador tiene acceso completo">
+                Acceso de Tenant
               </span>
               <span *ngIf="!u.user" class="text-xs text-muted-foreground/50">
                 Sin cuenta
@@ -197,7 +197,7 @@
 
         <!-- HEADER -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <h3 class="font-semibold text-foreground">New User</h3>
+          <h3 class="font-semibold text-foreground">Nuevo Usuario</h3>
 
           <button (click)="closeModal()"
             class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
@@ -214,7 +214,7 @@
           <!-- ========================= -->
           <div>
             <label class="block text-xs font-medium text-muted-foreground mb-2">
-              Account type
+              Tipo de cuenta
             </label>
 
             <div class="grid grid-cols-3 gap-2">
@@ -224,9 +224,9 @@
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/30'">
 
-                <div class="text-sm font-medium">Staff Only</div>
+                <div class="text-sm font-medium">Solo Staff</div>
                 <div class="text-xs text-muted-foreground mt-0.5">
-                  No system login
+                  Sin acceso al sistema
                 </div>
               </button>
 
@@ -235,9 +235,9 @@
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/30'">
 
-                <div class="text-sm font-medium">User Account</div>
+                <div class="text-sm font-medium">Cuenta de Usuario</div>
                 <div class="text-xs text-muted-foreground mt-0.5">
-                  Login enabled
+                  Con acceso al sistema
                 </div>
               </button>
 
@@ -246,9 +246,9 @@
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/30'">
 
-                <div class="text-sm font-medium">User + Staff</div>
+                <div class="text-sm font-medium">Usuario + Staff</div>
                 <div class="text-xs text-muted-foreground mt-0.5">
-                  Full access
+                  Acceso completo
                 </div>
               </button>
 
@@ -261,12 +261,12 @@
           <div class="grid grid-cols-2 gap-3">
 
             <div *ngIf="currentUser?.role === 'OWNER'">
-              <label class="text-xs text-muted-foreground">Company *</label>
+              <label class="text-xs text-muted-foreground">Empresa *</label>
 
               <select [(ngModel)]="userForm.companyId"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm">
 
-                <option [ngValue]="null" disabled>Select company</option>
+                <option [ngValue]="null" disabled>Seleccionar empresa</option>
 
                 <option *ngFor="let c of companies" [value]="c.id">
                   {{ c.name }}
@@ -276,26 +276,26 @@
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">First Name *</label>
+              <label class="text-xs text-muted-foreground">Nombre *</label>
               <input [(ngModel)]="userForm.firstName"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Last Name *</label>
+              <label class="text-xs text-muted-foreground">Apellido *</label>
               <input [(ngModel)]="userForm.lastName"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Phone</label>
+              <label class="text-xs text-muted-foreground">Teléfono</label>
               <input [(ngModel)]="userForm.phone"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <!-- EMAIL SOLO USER / USER_STAFF -->
             <div *ngIf="userForm.accountType !== 'STAFF'">
-              <label class="text-xs text-muted-foreground">Email *</label>
+              <label class="text-xs text-muted-foreground">Correo *</label>
               <input [(ngModel)]="userForm.email"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
@@ -304,14 +304,14 @@
 
           <!-- ADDRESS SOLO USER_STAFF -->
           <div *ngIf="userForm.accountType === 'USER_STAFF'">
-            <label class="text-xs text-muted-foreground">Address</label>
+            <label class="text-xs text-muted-foreground">Dirección</label>
             <input [(ngModel)]="userForm.address"
               class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
           </div>
 
           <!-- PASSWORD (solo USER / USER_STAFF) -->
           <div *ngIf="userForm.accountType !== 'STAFF'">
-            <label class="text-xs text-muted-foreground">Password *</label>
+            <label class="text-xs text-muted-foreground">Contraseña *</label>
             <input [(ngModel)]="userForm.password" type="password"
               class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
           </div>
@@ -322,13 +322,13 @@
           <div *ngIf="userForm.accountType !== 'USER'" class="grid grid-cols-2 gap-3 pt-2 border-t border-border">
 
             <div>
-              <label class="text-xs text-muted-foreground">Specialty</label>
+              <label class="text-xs text-muted-foreground">Especialidad</label>
               <input [(ngModel)]="userForm.specialty"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Notes</label>
+              <label class="text-xs text-muted-foreground">Notas</label>
               <textarea [(ngModel)]="userForm.notes" rows="3"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm resize-none">
               </textarea>
@@ -340,7 +340,7 @@
           <!-- ROLE -->
           <!-- ========================= -->
           <div *ngIf="userForm.accountType !== 'STAFF'">
-            <label class="text-xs text-muted-foreground">Role</label>
+            <label class="text-xs text-muted-foreground">Rol</label>
 
             <select [(ngModel)]="userForm.role"
               class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm">
@@ -360,12 +360,12 @@
         <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
 
           <button type="button" (click)="closeModal()" class="px-4 py-1.5 text-sm rounded-xl bg-secondary">
-            Cancel
+            Cancelar
           </button>
 
           <button type="button" (click)="createUser()"
             class="px-4 py-1.5 text-sm rounded-xl bg-primary text-primary-foreground">
-            Create
+            Crear
           </button>
 
         </div>
@@ -379,7 +379,7 @@
 
         <!-- HEADER -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h3 class="font-semibold text-foreground">Edit User</h3>
+          <h3 class="font-semibold text-foreground">Editar Usuario</h3>
 
           <button (click)="closeEditModal()"
             class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
@@ -397,25 +397,25 @@
           <div class="grid grid-cols-2 gap-3">
 
             <div>
-              <label class="text-xs text-muted-foreground">First Name</label>
+              <label class="text-xs text-muted-foreground">Nombre</label>
               <input [(ngModel)]="editForm.firstName"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Last Name</label>
+              <label class="text-xs text-muted-foreground">Apellido</label>
               <input [(ngModel)]="editForm.lastName"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Phone</label>
+              <label class="text-xs text-muted-foreground">Teléfono</label>
               <input [(ngModel)]="editForm.phone"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
 
             <div>
-              <label class="text-xs text-muted-foreground">Email</label>
+              <label class="text-xs text-muted-foreground">Correo</label>
               <input [(ngModel)]="editForm.email"
                 class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
             </div>
@@ -424,7 +424,7 @@
 
           <!-- ADDRESS -->
           <div>
-            <label class="text-xs text-muted-foreground">Address</label>
+            <label class="text-xs text-muted-foreground">Dirección</label>
             <input [(ngModel)]="editForm.address"
               class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
           </div>
@@ -433,7 +433,7 @@
           <!-- ROLE (ONLY IF USER EXISTS) -->
           <!-- ========================= -->
           <div *ngIf="editForm.role">
-            <label class="text-xs text-muted-foreground">Role</label>
+            <label class="text-xs text-muted-foreground">Rol</label>
 
             <select [(ngModel)]="editForm.role"
               class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm">
@@ -450,18 +450,18 @@
           <!-- ========================= -->
           <div class="pt-4 border-t border-border" *ngIf="editForm.supplier">
 
-            <h4 class="text-sm font-medium text-foreground mb-3">Supplier Info</h4>
+            <h4 class="text-sm font-medium text-foreground mb-3">Información del Proveedor</h4>
 
             <div class="grid grid-cols-2 gap-3">
 
               <div>
-                <label class="text-xs text-muted-foreground">Specialty</label>
+                <label class="text-xs text-muted-foreground">Especialidad</label>
                 <input [(ngModel)]="editForm.supplier.specialty"
                   class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm" />
               </div>
 
               <div>
-                <label class="text-xs text-muted-foreground">Notes</label>
+                <label class="text-xs text-muted-foreground">Notas</label>
                 <textarea [(ngModel)]="editForm.supplier.notes"
                   class="w-full bg-input-background  border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition rounded-xl px-3 py-2 text-sm resize-none"></textarea>
               </div>
@@ -475,12 +475,12 @@
         <div class="flex gap-2 justify-end px-6 py-4 border-t border-border">
 
           <button type="button" (click)="closeEditModal()" class="px-4 py-1.5 text-sm rounded-xl bg-secondary">
-            Cancel
+            Cancelar
           </button>
 
           <button type="button" (click)="updateUser()"
             class="px-4 py-1.5 text-sm rounded-xl bg-primary text-primary-foreground">
-            Save Changes
+            Guardar Cambios
           </button>
 
         </div>
@@ -496,7 +496,7 @@
 
           <!-- HEADER -->
           <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h3 class="font-semibold text-foreground">Delete User</h3>
+            <h3 class="font-semibold text-foreground">Eliminar Usuario</h3>
 
             <button (click)="closeDeleteModal()"
               class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
@@ -506,12 +506,12 @@
 
           <!-- BODY -->
           <div class="p-6 text-sm text-muted-foreground">
-            Are you sure you want to delete
+            ¿Estás seguro de que quieres eliminar
             <span class="text-foreground font-medium">
               {{ userToDelete?.person?.firstName }} {{ userToDelete?.person?.lastName }}
             </span>?
             <br />
-            <span class="text-xs text-muted-foreground/70">This action cannot be undone.</span>
+            <span class="text-xs text-muted-foreground/70">Esta acción no se puede deshacer.</span>
           </div>
 
           <!-- FOOTER -->
@@ -519,12 +519,12 @@
 
             <button (click)="closeDeleteModal()"
               class="px-4 py-1.5 text-sm rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80">
-              Cancel
+              Cancelar
             </button>
 
             <button (click)="confirmDelete()"
               class="px-4 py-1.5 text-sm rounded-xl bg-red-500 text-white hover:opacity-90 active:scale-95">
-              Delete
+              Eliminar
             </button>
 
           </div>
@@ -541,7 +541,7 @@
         <!-- HEADER -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <h3 class="font-semibold text-foreground">
-            Permissions – {{ selectedUser?.person?.firstName }} {{ selectedUser?.person?.lastName }}
+            Permisos – {{ selectedUser?.person?.firstName }} {{ selectedUser?.person?.lastName }}
           </h3>
           <button (click)="closePermissionsModal()"
                   [disabled]="isSaving"
@@ -557,7 +557,7 @@
           <!-- LOADING STATE -->
           <div *ngIf="isLoadingPermissions" class="flex items-center justify-center py-12">
             <lucide-angular [img]="icons.Loader2" class="w-8 h-8 animate-spin text-primary"></lucide-angular>
-            <span class="ml-3 text-muted-foreground">Loading permissions...</span>
+            <span class="ml-3 text-muted-foreground">Cargando permisos...</span>
           </div>
 
           <!-- PERMISSIONS CONTENT -->
@@ -566,8 +566,8 @@
 
               <!-- No permissions -->
               <div *ngIf="supplierPermissions.length === 0" class="text-center py-8 text-muted-foreground">
-                <p>No permissions assigned yet.</p>
-                <p class="text-sm">Add a supplier below to start managing permissions.</p>
+                <p>No hay permisos asignados aún.</p>
+                <p class="text-sm">Agrega un proveedor a continuación para comenzar a gestionar permisos.</p>
               </div>
 
               <!-- Supplier Permissions List -->
@@ -580,7 +580,7 @@
                     <div class="text-sm font-semibold text-foreground">
                       {{ supplierPerm.person.firstName }} {{ supplierPerm.person.lastName }}
                     </div>
-                    <div class="text-xs text-muted-foreground">{{ supplierPerm.supplier.specialty || 'Supplier' }}</div>
+                    <div class="text-xs text-muted-foreground">{{ supplierPerm.supplier.specialty || 'Proveedor' }}</div>
                   </div>
                   <button (click)="removeSupplierPermissions(supplierPerm.supplier.id)"
                           [disabled]="isSaving"
@@ -626,14 +626,14 @@
           
           <!-- Add New Supplier -->
           <div class="pb-4">
-            <div class="text-xs font-medium text-muted-foreground mb-2">Add permissions for another supplier</div>
+            <div class="text-xs font-medium text-muted-foreground mb-2">Agregar permisos para otro proveedor</div>
             <div class="flex gap-2">
               <div class="flex-1">
                 <select [(ngModel)]="selectedSupplierId"
                         [disabled]="isSaving || isLoadingPermissions"
                         class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
                         [ngClass]="{'opacity-50 cursor-not-allowed': isSaving || isLoadingPermissions}">
-                  <option [ngValue]="null">Select supplier</option>
+                  <option [ngValue]="null">Seleccionar proveedor</option>
                   <option *ngFor="let s of availableSuppliers" [ngValue]="s.id">
                     {{ s.person.firstName }} {{ s.person.lastName }}
                   </option>
@@ -644,12 +644,12 @@
                       class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
                       [ngClass]="{'opacity-50 cursor-not-allowed': !selectedSupplierId || isSaving || isLoadingPermissions}">
                 <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
-                Add
+                Agregar
               </button>
             </div>
             <div *ngIf="availableSuppliers.length === 0 && supplierPermissions.length > 0 && !isLoadingPermissions"
                  class="text-xs text-muted-foreground mt-2">
-              All suppliers in this company already have permissions assigned.
+              Todos los proveedores de esta empresa ya tienen permisos asignados.
             </div>
           </div>
 
@@ -658,14 +658,14 @@
             <div>
               <span *ngIf="hasChanges" class="text-xs text-amber-400">
                 <lucide-angular [img]="icons.Shield" class="w-3 h-3 inline mr-1"></lucide-angular>
-                You have unsaved changes
+                Tienes cambios sin guardar
               </span>
               <span *ngIf="!hasChanges && !isLoadingPermissions" class="text-xs text-muted-foreground">
-                No changes pending
+                Sin cambios pendientes
               </span>
               <span *ngIf="isSaving" class="text-xs text-primary">
                 <lucide-angular [img]="icons.Loader2" class="w-3 h-3 inline mr-1 animate-spin"></lucide-angular>
-                Saving...
+                Guardando...
               </span>
             </div>
             <div class="flex gap-2">
@@ -673,16 +673,16 @@
                       [disabled]="isSaving"
                       class="px-4 py-1.5 text-sm rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80"
                       [ngClass]="{'opacity-50 cursor-not-allowed': isSaving}">
-                Cancel
+                Cancelar
               </button>
               <button (click)="saveAllPermissions()" 
                       [disabled]="!hasChanges || isSaving"
                       class="px-4 py-1.5 text-sm rounded-xl bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
                       [ngClass]="{'opacity-50 cursor-not-allowed': !hasChanges || isSaving}">
-                <span *ngIf="!isSaving">Save Changes</span>
+                <span *ngIf="!isSaving">Guardar Cambios</span>
                 <span *ngIf="isSaving">
                   <lucide-angular [img]="icons.Loader2" class="w-3 h-3 inline mr-1 animate-spin"></lucide-angular>
-                  Saving...
+                  Guardando...
                 </span>
               </button>
             </div>

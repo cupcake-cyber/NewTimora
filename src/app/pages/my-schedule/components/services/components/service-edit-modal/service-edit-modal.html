@@ -4,7 +4,7 @@
     
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-      <h3 class="font-semibold text-foreground">Edit Service</h3>
+      <h3 class="font-semibold text-foreground">Editar Servicio</h3>
       <button
         (click)="onClose()"
         class="p-1.5 rounded-lg hover:bg-input-background text-muted-foreground hover:text-foreground transition-colors"
@@ -19,12 +19,12 @@
         <!-- NAME -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Service Name <span class="text-destructive ml-0.5">*</span>
+            Nombre del Servicio <span class="text-destructive ml-0.5">*</span>
           </label>
           <input
             [(ngModel)]="editForm.name"
             type="text"
-            placeholder="e.g Haircut"
+            placeholder="Ej: Corte de pelo"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -32,12 +32,12 @@
         <!-- DESCRIPTION -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Description
+            Descripción
           </label>
           <textarea
             [(ngModel)]="editForm.description"
             rows="2"
-            placeholder="Describe the service..."
+            placeholder="Describe el servicio..."
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
           ></textarea>
         </div>
@@ -46,7 +46,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-              Price <span class="text-destructive ml-0.5">*</span>
+              Precio <span class="text-destructive ml-0.5">*</span>
             </label>
             <input
               type="number"
@@ -60,7 +60,7 @@
 
           <div>
             <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-              Duration (min) <span class="text-destructive ml-0.5">*</span>
+              Duración (min) <span class="text-destructive ml-0.5">*</span>
             </label>
             <input
               type="number"
@@ -76,7 +76,7 @@
         <!-- STATUS -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Status
+            Estado
           </label>
           <select
             [(ngModel)]="editForm.status"
@@ -96,7 +96,7 @@
         (click)="onClose()"
         class="px-4 py-1.5 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
       >
-        Cancel
+        Cancelar
       </button>
       <button
         (click)="onSave()"
@@ -104,7 +104,7 @@
         class="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span *ngIf="isLoading" class="inline-block animate-spin mr-1">⏳</span>
-        Update Service
+        Actualizar Servicio
       </button>
     </div>
   </div>

@@ -1,14 +1,11 @@
 <header class="border-b border-border px-6 py-3.5 flex items-center justify-between bg-card shrink-0">
 
-  <!-- LEFT -->
   <span class="text-sm font-semibold text-foreground">
     {{ title }}
   </span>
 
-  <!-- RIGHT -->
   <div class="flex items-center gap-2">
 
-<!-- ROLE -->
 <ng-container *ngIf="role as r">
 
   <span
@@ -34,14 +31,12 @@
 
 </ng-container>
 
-    <!-- NOTIFICATIONS -->
     <div class="flex items-center pl-2 border-l border-border">
 
       <button
         (click)="toggleNotifications()"
         class="relative p-2 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
       >
-        <!-- icon -->
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
           viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -50,8 +45,6 @@
           <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
 
         </svg>
-
-        <!-- badge -->
 <span
   *ngIf="hasNotifications()"
   class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary animate-pulse"

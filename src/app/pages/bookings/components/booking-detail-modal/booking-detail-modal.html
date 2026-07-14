@@ -167,7 +167,7 @@
             <input
               type="text"
               [(ngModel)]="editForm.name"
-              placeholder="Nombre de la cita"
+              placeholder="Nombre de la cita/reserva"
               class="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
           </div>
         </div>
@@ -197,7 +197,7 @@
               Agregar pago
             </button>
             <div *ngIf="!canAddPayment" class="text-sm text-muted-foreground text-center py-2">
-              {{ isBookingCompleted ? 'Cita completada, no se pueden agregar pagos' : 'No se pueden agregar pagos' }}
+              {{ isBookingCompleted ? 'Completada, no se pueden agregar pagos' : 'No se pueden agregar pagos' }}
             </div>
           </div>
 

@@ -70,7 +70,7 @@ export class LoginComponent {
   console.log('ERROR CALLBACK');
   this.errorMessage = '* Invalid credentials';
 
-  this.cdr.detectChanges(); // 🔥 esto es lo correcto aquí
+  this.cdr.detectChanges();
 },
     });
   }

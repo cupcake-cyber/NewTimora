@@ -1,20 +1,20 @@
 export const PAGE_TITLES: Record<string, string> = {
   '/app/dashboard': 'Dashboard',
 
-  '/app/companies': 'Companies',
-  '/app/company': 'Company',
+  '/app/companies': 'Compañias',
+  '/app/company': 'Compañia',
 
-  '/app/bookings': 'Bookings',
-  '/app/availabilities': 'Availabilities',
-  '/app/services': 'Services',
+  '/app/bookings': 'Agenda',
+  '/app/availabilities': 'Disponibilidad',
+  '/app/services': 'Servicios',
 
-  '/app/users': 'Users',
-  '/app/customers': 'Customers',
+  '/app/users': 'Usuarios',
+  '/app/customers': 'Clientes',
 
-  '/app/payments': 'Payments',
+  '/app/payments': 'Pagos',
 
-  '/app/my-schedule': 'My Schedule',
+  '/app/my-schedule': 'Gestionables',
 
-  '/app/profile': 'Profile',
-  '/app/settings': 'Settings',
+  '/app/profile': 'Perfil',
+  '/app/settings': 'Ajustes',
 };

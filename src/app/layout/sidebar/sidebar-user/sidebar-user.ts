@@ -16,7 +16,6 @@ export class SidebarUserComponent {
 
   user$: Observable<UserSession | null> = this.session.user$;
 
-  // helper opcional para evitar lógica en HTML
   avatarSeed(user: UserSession | null): string {
     return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || 'User';
   }

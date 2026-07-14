@@ -4,7 +4,7 @@
   >
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-      <h3 class="font-semibold text-foreground">Edit Service</h3>
+      <h3 class="font-semibold text-foreground">Editar Servicio</h3>
 
       <button
         (click)="close.emit()"
@@ -20,7 +20,7 @@
         <!-- SERVICE NAME -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Service Name
+            Nombre del Servicio
           </label>
 
           <input
@@ -33,7 +33,7 @@
         <!-- DESCRIPTION -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Description
+            Descripción
           </label>
 
           <textarea
@@ -46,7 +46,7 @@
         <!-- PRICE / DURATION -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Price </label>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Precio </label>
 
             <input
               type="number"
@@ -56,7 +56,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Duration </label>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Duración </label>
 
             <input
               type="number"
@@ -68,29 +68,29 @@
 
         <!-- STATUS -->
         <div>
-          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Status </label>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Estado </label>
 
           <select
             [(ngModel)]="editForm.status"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="TEMPORARILY_UNAVAILABLE">Temporarily Unavailable</option>
-            <option value="ARCHIVED">Archived</option>
+            <option value="ACTIVE">Activo</option>
+            <option value="TEMPORARILY_UNAVAILABLE">Temporalmente No Disponible</option>
+            <option value="ARCHIVED">Archivado</option>
           </select>
         </div>
 
         <!-- FOOTER -->
         <div class="flex gap-2 justify-end pt-2">
           <button (click)="close.emit()" class="px-4 py-1.5 rounded-xl bg-input-background">
-            Cancel
+            Cancelar
           </button>
 
           <button
             (click)="save.emit()"
             class="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground"
           >
-            Save Changes
+            Guardar Cambios
           </button>
         </div>
       </div>

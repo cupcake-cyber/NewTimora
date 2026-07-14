@@ -1,11 +1,11 @@
 <div class="flex items-center justify-between shrink-0 flex-wrap gap-3">
   <div>
-    <h1 class="text-xl font-semibold text-foreground">Availability</h1>
-    <p class="text-sm text-muted-foreground">{{ totalSchedules }} schedules</p>
+    <h1 class="text-xl font-semibold text-foreground">Disponibilidad</h1>
+    <p class="text-sm text-muted-foreground">{{ totalSchedules }} Horarios</p>
   </div>
 
   <div class="flex items-center gap-2">
-    <!-- AutoComplete de compañías (solo si canSelectCompany) -->
+
     <div class="w-40" *ngIf="canSelectCompany">
       <div class="relative">
         <lucide-angular 
@@ -68,7 +68,7 @@
           panelStyleClass="custom-autocomplete-panel">
           <ng-template let-supplier pTemplate="item">
             <div class="text-sm text-foreground px-3 py-2">
-              <!-- 🔴 Si el supplier es el usuario actual, mostrar "Míos" -->
+
               <span *ngIf="currentUserPersonId === supplier.person.id" class="font-medium text-primary">
                 ⭐ {{ supplier.person.firstName }} {{ supplier.person.lastName }} (Míos)
               </span>
@@ -77,7 +77,7 @@
               </span>
             </div>
           </ng-template>
-          <!-- 🔴 Template para el valor seleccionado -->
+
           <ng-template let-supplier pTemplate="selectedItem">
             <span *ngIf="currentUserPersonId === supplier?.person?.id">
               ⭐ {{ supplier.person.firstName }} {{ supplier.person.lastName }} (Míos)
@@ -115,7 +115,7 @@
       [class.cursor-not-allowed]="isReadOnly"
       class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-primary text-primary-foreground hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
       <lucide-angular [img]="icons.Plus" class="w-4 h-4"></lucide-angular>
-      <span>Add schedule</span>
+      <span>Añadir horario</span>
     </button>
   </div>
 </div>

@@ -6,7 +6,7 @@ import { ServiceDTO, ServiceCreateDTO, ServicePatchDTO } from '../../models/serv
 @Injectable({ providedIn: 'root' })
 export class ServicesService {
   private http = inject(HttpClient);
-  // ✅ USA LA URL RELATIVA (pasa por el proxy)
+
   private baseUrl = '/api/services';
 
   getAll(): Observable<ServiceDTO[]> {

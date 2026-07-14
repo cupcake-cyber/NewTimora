@@ -4,7 +4,7 @@
   >
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-      <h3 class="font-semibold text-foreground">New Service</h3>
+      <h3 class="font-semibold text-foreground">Nuevo Servicio</h3>
 
       <button
         (click)="close.emit()"
@@ -20,7 +20,7 @@
         <!-- COMPANY -->
         <div *ngIf="isOwner">
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Company <span class="text-destructive ml-0.5">*</span>
+            Empresa <span class="text-destructive ml-0.5">*</span>
           </label>
 
           <select
@@ -28,7 +28,7 @@
             (ngModelChange)="modalCompanyChange.emit()"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
-            <option [ngValue]="null" disabled>Select company</option>
+            <option [ngValue]="null" disabled>Seleccionar empresa</option>
 
             <option *ngFor="let c of companies" [ngValue]="c.id">
               {{ c.name }}
@@ -39,20 +39,20 @@
         <!-- SUPPLIER -->
         <div *ngIf="!isUser">
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Supplier <span class="text-destructive ml-0.5">*</span>
+            Proveedor <span class="text-destructive ml-0.5">*</span>
           </label>
 
           <select
             [(ngModel)]="serviceForm.supplierId"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
-            <option [ngValue]="null" disabled>Select supplier</option>
+            <option [ngValue]="null" disabled>Seleccionar proveedor</option>
 
             <option *ngFor="let s of modalSuppliers" [ngValue]="s.supplier?.id">
               {{ s.person.firstName }}
               {{ s.person.lastName }}
               -
-              {{ s.supplier?.specialty || 'Supplier' }}
+              {{ s.supplier?.specialty || 'Proveedor' }}
             </option>
           </select>
         </div>
@@ -60,13 +60,13 @@
         <!-- NAME -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Service Name
+            Nombre del Servicio
           </label>
 
           <input
             [(ngModel)]="serviceForm.name"
             type="text"
-            placeholder="e.g Haircut"
+            placeholder="Ej: Corte de pelo"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -74,7 +74,7 @@
         <!-- DESCRIPTION -->
         <div>
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Description
+            Descripción
           </label>
 
           <textarea
@@ -89,14 +89,14 @@
           <input
             type="number"
             [(ngModel)]="serviceForm.price"
-            placeholder="Price"
+            placeholder="Precio"
             class="bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
 
           <input
             type="number"
             [(ngModel)]="serviceForm.duration"
-            placeholder="Duration"
+            placeholder="Duración"
             class="bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -106,24 +106,24 @@
           [(ngModel)]="serviceForm.status"
           class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
         >
-          <option value="ACTIVE">Active</option>
+          <option value="ACTIVE">Activo</option>
 
-          <option value="TEMPORARILY_UNAVAILABLE">Temporarily Unavailable</option>
+          <option value="TEMPORARILY_UNAVAILABLE">Temporalmente No Disponible</option>
 
-          <option value="ARCHIVED">Archived</option>
+          <option value="ARCHIVED">Archivado</option>
         </select>
 
         <!-- FOOTER -->
         <div class="flex justify-end gap-2 pt-2">
           <button (click)="close.emit()" class="px-4 py-1.5 rounded-xl bg-input-background">
-            Cancel
+            Cancelar
           </button>
 
           <button
             (click)="save.emit()"
             class="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground"
           >
-            Create Service
+            Crear Servicio
           </button>
         </div>
       </div>

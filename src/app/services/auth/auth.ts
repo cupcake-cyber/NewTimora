@@ -21,14 +21,12 @@ export class AuthService {
     private session: SessionService
   ) {}
 
-  // 🔐 LOGIN
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.api, { email, password }).pipe(
       tap(res => this.saveSession(res))
     );
   }
 
-  // 🧠 GUARDAR SESIÓN (SYNC TOTAL)
   private saveSession(res: LoginResponse): void {
     if (!res?.accessToken || !res?.user) return;
 
@@ -38,12 +36,10 @@ export class AuthService {
     this.session.setFromAuth(res.user);
   }
 
-  // 🔑 TOKEN
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  // 👤 USER
   getUser(): CurrentUser | null {
     const raw = localStorage.getItem('user');
     if (!raw) return null;
@@ -56,7 +52,6 @@ export class AuthService {
     }
   }
 
-  // 🚪 LOGOUT LIMPIO
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -65,7 +60,6 @@ export class AuthService {
     this.session.clear();
   }
 
-  // ✔ CHECK LOGIN
   isLoggedIn(): boolean {
     return !!this.getToken();
   }

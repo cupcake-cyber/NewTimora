@@ -4,7 +4,7 @@
     
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-      <h3 class="font-semibold text-foreground">Delete Service</h3>
+      <h3 class="font-semibold text-foreground">Eliminar Servicio</h3>
       <button
         (click)="onClose()"
         class="p-1.5 rounded-lg hover:bg-input-background text-muted-foreground hover:text-foreground transition-colors"
@@ -16,9 +16,9 @@
     <!-- BODY -->
     <div class="p-6">
       <p class="text-sm text-muted-foreground">
-        Are you sure you want to delete <span class="text-foreground font-medium">{{ getServiceName() }}</span>?
+        ¿Estás seguro de que quieres eliminar <span class="text-foreground font-medium">{{ getServiceName() }}</span>?
       </p>
-      <p class="text-xs text-muted-foreground/70 mt-1">This action cannot be undone.</p>
+      <p class="text-xs text-muted-foreground/70 mt-1">Esta acción no se puede deshacer.</p>
     </div>
 
     <!-- FOOTER -->
@@ -27,7 +27,7 @@
         (click)="onClose()"
         class="px-4 py-1.5 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
       >
-        Cancel
+        Cancelar
       </button>
       <button
         (click)="onConfirm()"
@@ -35,7 +35,7 @@
         class="px-4 py-1.5 rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span *ngIf="isLoading" class="inline-block animate-spin mr-1">⏳</span>
-        Delete
+        Eliminar
       </button>
     </div>
   </div>

@@ -81,5 +81,4 @@ export class AvailabilityService {
     return this.http.get<AvailabilityDTO>(`${this.baseUrl}/${id}`);
   }
 
-  // 🔴 ELIMINADO: validateOverlap - ya no se usa
 }

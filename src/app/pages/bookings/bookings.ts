@@ -42,7 +42,7 @@ type CalendarViewMode = 'day' | 'week' | 'month';
     BookingsForm,
     BookingDetailModal,
     BookingsDeleteModal,
-    BookingsCalendar // ✅ Importar
+    BookingsCalendar
   ],
   templateUrl: './bookings.html',
   styleUrls: ['./bookings.scss']
@@ -264,7 +264,7 @@ private loadCompanies(): void {
       next: data => {
         this.bookings = data;
         this.filteredBookings = data;
-        this.events = this.convertToEvents(data); // ✅ Convertir a eventos
+        this.events = this.convertToEvents(data); 
         console.log('📋 Bookings cargados:', this.bookings.length);
         this.loading = false;
         this.cdr.detectChanges();

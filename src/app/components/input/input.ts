@@ -32,12 +32,9 @@ export class InputComponent implements ControlValueAccessor {
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
 
-  // =========================
-  // Angular → componente
-  // =========================
   writeValue(value: string): void {
     this.value = value ?? '';
-    this.cdr.markForCheck(); // 🔥 FIX CLAVE
+    this.cdr.markForCheck();
   }
 
   registerOnChange(fn: any): void {
@@ -50,12 +47,9 @@ export class InputComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
-    this.cdr.markForCheck(); // 🔥 evita glitches visuales
+    this.cdr.markForCheck();
   }
 
-  // =========================
-  // componente → Angular
-  // =========================
   handleInput(event: Event) {
     const value = (event.target as HTMLInputElement).value;
 

@@ -18,16 +18,11 @@ export class NotificationsDrawerComponent implements OnInit {
 
   private service = inject(NotificationService);
 
-  // =========================
-  // STATE (SOLO PROXY)
-  // =========================
+
   open = this.service.isOpen;
   notifications = this.service.notifications;
-  unreadCount = this.service.unreadCount; // ✔ FIX: sin función local
+  unreadCount = this.service.unreadCount;
 
-  // =========================
-  // INTERNAL UI STATE
-  // =========================
   private wasOpen = false;
   hydrated = signal(false);
 

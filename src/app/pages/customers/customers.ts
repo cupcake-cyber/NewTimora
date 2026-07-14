@@ -236,8 +236,7 @@ export class CustomersComponent implements OnInit {
 
     const f = this.editForm;
 
-    // 🔴 IMPORTANTE: SOLO actualizar la persona
-    // NO enviar customer porque el backend no lo permite
+
     const payload: any = {
       person: {
         firstName: f.firstName,
@@ -246,7 +245,7 @@ export class CustomersComponent implements OnInit {
         email: f.email,
         address: f.address
       }
-      // ❌ NO enviar customer: { notes: f.notes }
+   
     };
 
     this.personService.patch(this.editPersonId, payload).subscribe({

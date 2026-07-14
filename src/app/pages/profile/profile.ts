@@ -24,8 +24,7 @@ export class ProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private personService = inject(PersonService);
   private auth = inject(AuthService);
-  private session = inject(SessionService); // 🔥 FALTABA
-
+  private session = inject(SessionService);
   personId!: number;
   userEmail = '';
 

@@ -239,7 +239,6 @@ private loadCompanies(): void {
         
         this.filteredAvailabilities = this.availabilities;
         
-        // 🔴 Generar eventos para el calendario con soporte para recurrencias
         this.events = this.generateCalendarEvents(this.availabilities, supplierName);
         
         this.loading = false;

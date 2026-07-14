@@ -4,7 +4,7 @@
   >
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-      <h3 class="font-semibold text-foreground">Delete Client</h3>
+      <h3 class="font-semibold text-foreground">Eliminar Cliente</h3>
 
       <button
         (click)="close()"
@@ -16,7 +16,7 @@
 
     <!-- BODY -->
     <div class="p-6 text-sm text-muted-foreground">
-      Are you sure you want to delete
+      ¿Estás seguro de que quieres eliminar?
 
       <span class="text-foreground font-medium">
         {{ customer?.person?.firstName }}
@@ -27,7 +27,7 @@
 
       <br />
 
-      <span class="text-xs text-muted-foreground/70"> This action cannot be undone. </span>
+      <span class="text-xs text-muted-foreground/70">Esta acción no se puede deshacer. </span>
     </div>
 
     <!-- FOOTER -->
@@ -36,14 +36,14 @@
         (click)="close()"
         class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-secondary text-secondary-foreground hover:bg-muted"
       >
-        Cancel
+        Cancelae
       </button>
 
       <button
         (click)="delete()"
         class="inline-flex items-center rounded-xl font-medium transition cursor-pointer px-4 py-1.5 text-sm gap-1.5 bg-red-500 text-white hover:opacity-90 active:scale-95"
       >
-        Delete
+        Eliminar
       </button>
     </div>
   </div>

@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between px-6 py-4 border-b border-border">
 
       <h3 class="font-semibold text-foreground">
-        Delete Company
+        Eliminar compañia
       </h3>
 
 
@@ -28,7 +28,7 @@
     <!-- BODY -->
     <div class="p-6 text-sm text-muted-foreground">
 
-      Are you sure you want to delete
+      ¿Estás seguro de que quieres eliminar?
 
       <span class="text-foreground font-medium">
         {{ company?.name }}
@@ -48,7 +48,7 @@
         (click)="close.emit()"
         class="px-4 py-1.5 text-sm rounded-xl bg-secondary text-secondary-foreground">
 
-        Cancel
+        Cancelar
 
       </button>
 
@@ -58,7 +58,7 @@
         (click)="confirm.emit()"
         class="px-4 py-1.5 text-sm rounded-xl bg-red-500 text-white hover:opacity-90">
 
-        Delete
+        Eliminar
 
       </button>
 

@@ -14,7 +14,7 @@ import { ModalComponent } from '../../../../../../components/modal/modal/modal';
 })
 export class ServiceDeleteModal {
   @Input() open = false;
-  @Input() isLoading = false;  // ← AGREGAR
+  @Input() isLoading = false;
   @Input() service: ServiceDTO | null = null;
 
   @Output() openChange = new EventEmitter<boolean>();

@@ -24,8 +24,6 @@ export class MyScheduleService {
         if (!currentUser) {
             throw new Error('User not authenticated');
         }
-
-        // ✅ Usar el userId del usuario actual (que es USER)
         const userId = currentUser.userId;
         console.log('🔍 Getting suppliers for user:', userId);
 
@@ -37,7 +35,7 @@ export class MyScheduleService {
 
                 if (supplierIds.length === 0) {
                     console.log('ℹ️ No suppliers found');
-                    return of([]); // ← IMPORTANTE: return of([]) en lugar de []
+                    return of([]);
                 }
 
                 // 2. Obtener todos los person para obtener los detalles de los suppliers

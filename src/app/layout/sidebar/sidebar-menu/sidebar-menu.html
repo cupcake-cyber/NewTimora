@@ -2,14 +2,12 @@
 
   <ng-container *ngFor="let item of filteredMenu">
 
-    <!-- DIVIDER -->
     <div *ngIf="item.type === 'divider'" class="pt-3 mt-3 border-t border-sidebar-border">
       <div class="px-3 text-[10px] font-semibold text-muted-foreground tracking-widest">
         {{ item.label }}
       </div>
     </div>
 
-    <!-- ITEM -->
     <app-sidebar-item
       *ngIf="item.type === 'item'"
       [item]="item"

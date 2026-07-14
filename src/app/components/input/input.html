@@ -8,9 +8,9 @@
     (input)="handleInput($event)"
     (blur)="handleBlur()"
     class="w-full h-11 px-3 pr-10 rounded-xl border border-border
-           bg-input-background text-foreground
-           placeholder-muted-foreground
-           focus:outline-none focus:ring-2 focus:ring-ring transition"
+    bg-input-background text-foreground
+    placeholder-muted-foreground
+    focus:outline-none focus:ring-2 focus:ring-ring transition"
   />
 
   <button
@@ -18,7 +18,7 @@
     type="button"
     (click)="togglePassword()"
     class="absolute right-3 top-1/2 -translate-y-1/2
-           text-muted-foreground hover:text-foreground transition"
+    text-muted-foreground hover:text-foreground transition"
   >
     <span *ngIf="!showPassword">👁</span>
     <span *ngIf="showPassword">🙈</span>

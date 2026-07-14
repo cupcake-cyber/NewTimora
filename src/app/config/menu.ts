@@ -57,7 +57,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Companies',
+    label: 'Compañias',
     route: '/app/companies',
     icon: Building2,
     modes: ['OWNER'],
@@ -65,7 +65,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Company',
+    label: 'Compañia',
     route: '/app/company',
     icon: Building2,
     modes: ['ADMIN', 'ADMIN_SUPPLIER'],
@@ -73,7 +73,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'My Schedule',
+    label: 'Gestionables',
     route: '/app/my-schedule',
     icon: Shield,
     modes: ['USER_PERMISSION', 'USER_PERMISSION_SUPPLIER'],
@@ -81,7 +81,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Bookings',
+    label: 'Agenda',
     route: '/app/bookings',
     icon: CalendarDays,
     modes: [
@@ -95,7 +95,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Availabilities',
+    label: 'Disponibilidad',
     route: '/app/availabilities',
     icon: Clock,
     modes: [
@@ -109,7 +109,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Services',
+    label: 'Servicios',
     route: '/app/services',
     icon: Package,
     modes: [
@@ -123,7 +123,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Users',
+    label: 'Usuarios',
     route: '/app/users',
     icon: Users,
     modes: ['OWNER', 'ADMIN', 'ADMIN_SUPPLIER'],
@@ -131,7 +131,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Customers',
+    label: 'Clientes',
     route: '/app/customers',
     icon: UserCheck,
     modes: [
@@ -147,7 +147,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Payments',
+    label: 'Pagos',
     route: '/app/payments',
     icon: CreditCard,
     modes: [
@@ -169,7 +169,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Profile',
+    label: 'Perfil',
     route: '/app/profile',
     icon: User,
     modes: [
@@ -185,7 +185,7 @@ export const MENU: MenuItem[] = [
 
   {
     type: 'item',
-    label: 'Settings',
+    label: 'Ajustes',
     route: '/app/settings',
     icon: Settings,
     modes: [

@@ -16,9 +16,7 @@ export class SessionService {
 
   user$ = this.userSubject.asObservable();
 
-  // ==============================
-  // 🔥 LOGIN (NO CAMBIAR)
-  // ==============================
+
   setFromAuth(user: any): void {
 
     const session: UserSession = {
@@ -31,9 +29,7 @@ export class SessionService {
     this.save(session);
   }
 
-  // ==============================
-  // 🧠 UPDATE PARCIAL (NUEVO)
-  // ==============================
+
   updatePartial(data: Partial<UserSession>): void {
 
     const current = this.userSubject.value;
@@ -44,7 +40,6 @@ export class SessionService {
       ...current,
       ...data,
 
-      // 🔥 CRÍTICO: mantener mode intacto
       mode: current.mode
     };
 
@@ -60,24 +55,17 @@ export class SessionService {
     );
   }
 
-  // ==============================
-  // ❌ logout
-  // ==============================
+
   clear(): void {
     localStorage.removeItem(this.STORAGE_KEY);
     this.userSubject.next(null);
   }
 
-  // ==============================
-  // ⚡ SNAPSHOT
-  // ==============================
+
   getSnapshot(): UserSession | null {
     return this.userSubject.value;
   }
 
-  // ==============================
-  // 💾 persistencia
-  // ==============================
   private save(session: UserSession): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(session));
     this.userSubject.next(session);
@@ -96,9 +84,7 @@ export class SessionService {
     }
   }
 
-  // ==============================
-  // 🎯 MAPEO REAL
-  // ==============================
+
   private mapMode(role: UserSession['role']): UserSession['mode'] {
 
     switch (role) {

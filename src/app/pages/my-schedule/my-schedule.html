@@ -4,9 +4,9 @@
 
     <!-- HEADER -->
     <div>
-      <h1 class="text-xl font-semibold text-foreground">My Schedule</h1>
+      <h1 class="text-xl font-semibold text-foreground">Gestionables</h1>
       <p class="text-sm text-muted-foreground">
-        Suppliers you manage via permissions
+        Proveedores que gestionas mediante permisos
       </p>
     </div>
 
@@ -50,34 +50,34 @@
             <!-- Booking -->
             <span *ngIf="hasBookingPermission()" 
                   class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400"
-                  title="Booking permissions">
+                  title="Permisos de reservas">
               📅 B
             </span>
 
             <!-- Availability -->
             <span *ngIf="hasAvailabilityPermission()" 
                   class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400"
-                  title="Availability permissions">
+                  title="Permisos de disponibilidad">
               ⏰ A
             </span>
 
             <!-- Service -->
             <span *ngIf="hasServicePermission()" 
                   class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-500/10 text-purple-400"
-                  title="Service permissions">
+                  title="Permisos de servicios">
               🔧 S
             </span>
 
             <!-- Customer -->
             <span *ngIf="hasCustomerPermission()" 
                   class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400"
-                  title="Customer permissions">
+                  title="Permisos de clientes">
               👥 C
             </span>
           </div>
           
           <span *ngIf="!hasAnyCategoryPermission()" class="text-muted-foreground/50 text-[10px]">
-            No permissions
+            Sin permisos
           </span>
         </div>
       </div>
@@ -121,7 +121,7 @@
       <!-- CONTENT AREA - CUSTOMERS -->
       <div *ngIf="activeTab === 'CUSTOMERS'" class="flex flex-col h-full space-y-4">
         <div class="text-center py-12 text-muted-foreground">
-          <p>Customers view coming soon...</p>
+          <p>Vista de clientes próximamente...</p>
         </div>
       </div>
 

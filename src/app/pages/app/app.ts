@@ -47,14 +47,12 @@ export class AppComponent implements OnDestroy {
 
     this.notifications.startPolling(5000);
 
-    // Cargar configuración del usuario
     this.sub.add(
       this.configurationService.refreshMy().subscribe({
-        error: err => console.error('Error loading configuration', err)
+        error: err => console.error('Error al cargar la configuración', err)
       })
     );
 
-    // Escuchar cambios de configuración
     this.sub.add(
       this.configurationService.config$
         .subscribe(config => {
@@ -66,7 +64,6 @@ export class AppComponent implements OnDestroy {
         })
     );
 
-    // Cambio de título
     this.sub.add(
       this.router.events
         .pipe(filter(e => e instanceof NavigationEnd))

@@ -3,7 +3,7 @@
   <!-- LOADING STATE -->
   <div *ngIf="isLoading" class="flex items-center justify-center py-8">
     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-    <span class="ml-3 text-sm text-muted-foreground">Loading suppliers...</span>
+    <span class="ml-3 text-sm text-muted-foreground">Cargar Proveedor...</span>
   </div>
 
   <!-- ERROR STATE -->
@@ -12,15 +12,15 @@
     <button 
       (click)="onRetry()"
       class="px-3 py-1 text-xs rounded-lg bg-destructive/20 hover:bg-destructive/30 transition-colors">
-      Retry
+      Procesar de nuevo
     </button>
   </div>
 
   <!-- EMPTY STATE -->
   <div *ngIf="!isLoading && !error && suppliers.length === 0" class="text-center py-8">
     <div class="text-muted-foreground">
-      <p class="text-sm font-medium">No suppliers available</p>
-      <p class="text-xs">You don't have permissions to manage any supplier's schedule.</p>
+      <p class="text-sm font-medium">No hay proveedores disponibles</p>
+      <p class="text-xs">No tienes permisos para gestionar el calendario de ningún proveedor.</p>
     </div>
   </div>
 

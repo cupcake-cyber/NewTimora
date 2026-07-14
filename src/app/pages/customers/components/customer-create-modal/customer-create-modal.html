@@ -4,7 +4,7 @@
   >
     <!-- HEADER -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-      <h3 class="font-semibold text-foreground">New Client</h3>
+      <h3 class="font-semibold text-foreground">Nuevo Cliente</h3>
 
       <button
         (click)="close()"
@@ -20,7 +20,7 @@
         <!-- COMPANY OWNER -->
         <div *ngIf="canSelectCompany">
           <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-            Company
+            Compañia
             <span class="text-destructive ml-0.5">*</span>
           </label>
 
@@ -28,7 +28,7 @@
             [(ngModel)]="form.companyId"
             class="w-full bg-input-background border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
-            <option [ngValue]="null" disabled>Select company</option>
+            <option [ngValue]="null" disabled>Seleccionar compañia</option>
 
             <option *ngFor="let c of companies" [ngValue]="c.id">
               {{ c.name }}
@@ -40,7 +40,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-              First Name *
+              Nombre *
             </label>
 
             <input
@@ -51,7 +51,7 @@
 
           <div>
             <label class="block text-xs font-medium text-muted-foreground mb-1.5">
-              Last Name *
+              Apellido*
             </label>
 
             <input
@@ -61,7 +61,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Phone </label>
+            <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Teléfono </label>
 
             <input
               [(ngModel)]="form.phone"
@@ -82,7 +82,7 @@
 
         <!-- ADDRESS -->
         <div>
-          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Address </label>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Dirección </label>
 
           <input
             [(ngModel)]="form.address"
@@ -92,7 +92,7 @@
 
         <!-- NOTES -->
         <div>
-          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Notes </label>
+          <label class="block text-xs font-medium text-muted-foreground mb-1.5"> Notas </label>
 
           <textarea
             rows="3"
@@ -109,14 +109,14 @@
             (click)="close()"
             class="px-4 py-1.5 rounded-xl text-sm bg-secondary text-secondary-foreground hover:bg-muted"
           >
-            Cancel
+            Cancelar
           </button>
 
           <button
            (click)="submit()"
             class="px-4 py-1.5 rounded-xl text-sm bg-primary text-primary-foreground hover:opacity-90"
           >
-            Save Client
+            Guardar Cliente
           </button>
         </div>
       </div>

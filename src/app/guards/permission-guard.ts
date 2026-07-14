@@ -9,7 +9,6 @@ export const permissionGuard: CanActivateChildFn = (route, state) => {
 
   const session = sessionService.getSnapshot();
 
-  // ❌ sin sesión → bloquear acceso
   if (!session) {
     return router.createUrlTree(['/login']);
   }
@@ -17,12 +16,10 @@ export const permissionGuard: CanActivateChildFn = (route, state) => {
   const url = state.url.split('?')[0].split(';')[0];
   const allowed = ROUTE_PERMISSIONS[url];
 
-  // ✔ si no hay restricción explícita → permitir
   if (!allowed) {
     return true;
   }
 
-  // ✔ si tiene permiso → permitir
   if (allowed.includes(session.mode)) {
     return true;
   }
